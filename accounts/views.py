@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import User
 from .forms import LoginForm 
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 def home_page(request):
     return render(request, 'accounts/home.html')
@@ -42,5 +43,27 @@ def register_view(request):
 def admin_dashboard(request):
     return render(request, 'accounts/admin_dashboard.html')
 
+import os
+import csv
+from django.conf import settings
+from django.shortcuts import render
+
+
 def municipal_dashboard(request):
-    return render(request, 'accounts/municipal_dashboard.html')
+    # Get the absolute path to the CSV file
+    csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
+
+    # Read the CSV file
+    bins = []
+    with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            bins.append(row)
+
+    # Apply filtering if a status is provided in the query
+    status_filter = request.GET.get('status')
+    if status_filter:
+        bins = [bin for bin in bins if bin['status'] == status_filter]
+
+    return render(request, 'accounts/municipal_dashboard.html', {'bins': bins})
+

@@ -1,10 +1,72 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Municipal Dashboard</title>
-</head>
-<body>
-    <h2>Welcome Municipal Authority!</h2>
-    <p>This is the Municipal Authority dashboard where you can monitor waste collection.</p>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}Municipal Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Municipal Authority Dashboard</h2>
+    <p>Welcome, {{ user.username }}!</p>
+
+    <!-- Filter Section -->
+    <form method="get" action="" class="mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <label for="status" class="form-label">Filter by Status:</label>
+                <select name="status" id="status" class="form-select">
+                    <option value="">All</option>
+                    <option value="Empty">Empty</option>
+                    <option value="Half Full">Half Full</option>
+                    <option value="Full">Full</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Bin Data Display -->
+    <table class="table table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">Icon</th>
+                <th scope="col">Bin ID</th>
+                <th scope="col">Location</th>
+                <th scope="col">Status</th>
+                <th scope="col">Waste Level (%)</th>
+                <th scope="col">Temperature (°C)</th>
+                <th scope="col">Last Updated</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bin in bins %}
+            <tr>
+                <td>
+                    {% if bin.status == "Empty" %}
+                    <i class="fas fa-trash text-success fa-2x"></i>
+                    {% elif bin.status == "Half Full" %}
+                    <i class="fas fa-trash-alt text-warning fa-2x"></i>
+                    {% elif bin.status == "Full" %}
+                    <i class="fas fa-trash text-danger fa-2x"></i>
+                    {% endif %}
+                </td>
+                <td>{{ bin.bin_id }}</td>
+                <td>{{ bin.location }}</td>
+                <td>
+                    <span class="badge 
+                        {% if bin.status == 'Empty' %} bg-success 
+                        {% elif bin.status == 'Half Full' %} bg-warning 
+                        {% elif bin.status == 'Full' %} bg-danger 
+                        {% endif %}">
+                        {{ bin.status }}
+                    </span>
+                </td>
+                <td>{{ bin.waste_level }}</td>
+                <td>{{ bin.temperature }}</td>
+                <td>{{ bin.last_updated }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
