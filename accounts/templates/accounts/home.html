@@ -1,108 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Waste Management System</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-        }
+{% extends 'base.html' %}
 
-        header {
-            background-color: #2a3d4d;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
+{% block title %}Home - Smart Waste Management System{% endblock %}
 
-        h1 {
-            margin: 0;
-            font-size: 2.5em;
-        }
-
-        p {
-            font-size: 1.2em;
-            margin-top: 10px;
-        }
-
-        .container {
-            text-align: center;
-            margin-top: 50px;
-        }
-
-        a {
-            display: inline-block;
-            margin: 20px;
-            padding: 10px 20px;
-            text-decoration: none;
-            color: white;
-            background-color: #4CAF50;
-            border-radius: 5px;
-            font-size: 1.1em;
-            transition: background-color 0.3s;
-        }
-
-        a:hover {
-            background-color: #45a049;
-        }
-
-        /* Styling for the moving images */
-        .image-gallery {
-            display: flex;
-            justify-content: center;
-            margin-top: 30px;
-            overflow: hidden;
-            width: 80%;
-            margin: 50px auto;
-        }
-
-        .image-gallery img {
-            width: 300px;
-            margin: 0 15px;
-            border-radius: 10px;
-            animation: moveImage 10s infinite linear;
-        }
-
-        /* Create animation to make the images move */
-        @keyframes moveImage {
-            0% {
-                transform: translateX(0);
-            }
-            25% {
-                transform: translateX(-100%);
-            }
-            50% {
-                transform: translateX(-200%);
-            }
-            75% {
-                transform: translateX(-300%);
-            }
-            100% {
-                transform: translateX(0);
-            }
-        }
-
-        footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: #2a3d4d;
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>Welcome to the Smart Waste Management System</h1>
-        <p>This is a system that optimizes waste collection using IoT and Machine Learning.</p>
-    </header>
-
+{% block content %}
     <div class="container">
         <a href="{% url 'login' %}">Login</a>
         <a href="{% url 'register' %}">Register</a>
@@ -110,13 +10,8 @@
 
     <!-- Image Gallery with moving images -->
     <div class="image-gallery">
-        <img src="https://via.placeholder.com/300x200?text=Image+1" alt="Image 1">
-        <img src="https://via.placeholder.com/300x200?text=Image+2" alt="Image 2">
-        <img src="https://via.placeholder.com/300x200?text=Image+3" alt="Image 3">
+        <img src="{% static 'images/image1.jpg' %}" alt="Image 1">
+        <img src="{% static 'images/image2.jpg' %}" alt="Image 2">
+        <img src="{% static 'images/image3.jpg' %}" alt="Image 3">
     </div>
-
-    <footer>
-        <p>&copy; 2025 Smart Waste Management System. All rights reserved.</p>
-    </footer>
-</body>
-</html>
+{% endblock %}
