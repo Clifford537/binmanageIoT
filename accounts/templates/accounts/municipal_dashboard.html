@@ -3,70 +3,179 @@
 {% block title %}Municipal Dashboard{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-3">Municipal Authority Dashboard</h2>
-    <p>Welcome, {{ user.username }}!</p>
+<head>
+    <title>Municipal Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden; /* Ensures map remains interactive */
+        }
+        .table-container {
+            margin-top: 20px;
+        }
+        .status-full {
+            color: red;
+            font-weight: bold;
+        }
+        .status-half {
+            color: orange;
+            font-weight: bold;
+        }
+        .status-empty {
+            color: green;
+            font-weight: bold;
+        }
+        .legend {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+        .legend .status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .legend .status span {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
+        .status-full-icon {
+            background-color: red;
+        }
+        .status-half-icon {
+            background-color: orange;
+        }
+        .status-empty-icon {
+            background-color: green;
+        }
+        @media (max-width: 768px) {
+            #map {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-4">Municipal Dashboard</h1>
+        <p>Welcome, {{ user.username }}!</p>
 
-    <!-- Filter Section -->
-    <form method="get" action="" class="mb-4">
         <div class="row">
-            <div class="col-md-4">
-                <label for="status" class="form-label">Filter by Status:</label>
-                <select name="status" id="status" class="form-select">
-                    <option value="">All</option>
-                    <option value="Empty">Empty</option>
-                    <option value="Half Full">Half Full</option>
-                    <option value="Full">Full</option>
-                </select>
+            <!-- Map Section -->
+            <div class="col-md-8">
+                <div id="map"></div>
             </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary">Filter</button>
+
+            <!-- Legend Section -->
+            <div class="col-md-4">
+                <div class="legend">
+                    <h5>Legend</h5>
+                    <div class="status">
+                        <span class="status-full-icon"></span>
+                        <p>Full</p>
+                    </div>
+                    <div class="status">
+                        <span class="status-half-icon"></span>
+                        <p>Half Full</p>
+                    </div>
+                    <div class="status">
+                        <span class="status-empty-icon"></span>
+                        <p>Empty</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </form>
 
-    <!-- Bin Data Display -->
-    <table class="table table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th scope="col">Icon</th>
-                <th scope="col">Bin ID</th>
-                <th scope="col">Location</th>
-                <th scope="col">Status</th>
-                <th scope="col">Waste Level (%)</th>
-                <th scope="col">Temperature (°C)</th>
-                <th scope="col">Last Updated</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for bin in bins %}
-            <tr>
-                <td>
-                    {% if bin.status == "Empty" %}
-                    <i class="fas fa-trash text-success fa-2x"></i>
-                    {% elif bin.status == "Half Full" %}
-                    <i class="fas fa-trash-alt text-warning fa-2x"></i>
-                    {% elif bin.status == "Full" %}
-                    <i class="fas fa-trash text-danger fa-2x"></i>
-                    {% endif %}
-                </td>
-                <td>{{ bin.bin_id }}</td>
-                <td>{{ bin.location }}</td>
-                <td>
-                    <span class="badge 
-                        {% if bin.status == 'Empty' %} bg-success 
-                        {% elif bin.status == 'Half Full' %} bg-warning 
-                        {% elif bin.status == 'Full' %} bg-danger 
-                        {% endif %}">
-                        {{ bin.status }}
-                    </span>
-                </td>
-                <td>{{ bin.waste_level }}</td>
-                <td>{{ bin.temperature }}</td>
-                <td>{{ bin.last_updated }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+        <!-- Table Section -->
+        <div class="table-container">
+            <h2 class="mt-4">Bin Details</h2>
+            <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Bin ID</th>
+                        <th>Location</th>
+                        <th>Waste Level</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bin in bins %}
+                    <tr>
+                        <td>{{ bin.bin_id }}</td>
+                        <td>{{ bin.location }}</td>
+                        <td>{{ bin.waste_level }}%</td>
+                        <td class="
+                            {% if bin.status == 'Full' %}status-full
+                            {% elif bin.status == 'Half Full' %}status-half
+                            {% else %}status-empty
+                            {% endif %}
+                        ">
+                            {{ bin.status }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div> <br> <br> <br> <br>
+    </div> <br> <br>
+
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        var map = L.map('map', {
+            scrollWheelZoom: true, // Enable scroll wheel zoom
+            dragging: true
+        }).setView([-1.286389, 36.817223], 6); // Centered in Kenya
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add bins as markers with color-coded styles
+        var bins = {{ bins|safe }}; // Bins data passed from Django context
+        bins.forEach(bin => {
+            var markerColor;
+
+            // Assign marker color based on status
+            if (bin.status === 'Full') {
+                markerColor = "red";
+            } else if (bin.status === 'Half Full') {
+                markerColor = "orange";
+            } else {
+                markerColor = "green";
+            }
+
+            // Create a custom marker with bin ID as label
+            var customIcon = L.divIcon({
+                className: 'custom-icon',
+                html: `<div style="background-color: ${markerColor}; color: white; border-radius: 10%; width: 40px; height: 20px; display: flex; justify-content: center; align-items: center; font-size: 10px; font-weight: bold;">${bin.bin_id}</div>`
+            });
+
+            // Add marker to map
+            L.marker([parseFloat(bin.latitude), parseFloat(bin.longitude)], { icon: customIcon })
+                .addTo(map)
+                .bindPopup(`
+                    <b>Bin ID: ${bin.bin_id}</b><br>
+                    <b>Location:</b> ${bin.location}<br>
+                    <b>Status:</b> ${bin.status}<br>
+                    <b>latitude:</b> ${bin.latitude}<br>
+                    <b>longitude:</b> ${bin.longitude}<br>
+                    <b>Waste Level:</b> ${bin.waste_level}%`);
+        });
+    </script>
+
 {% endblock %}

@@ -1,11 +1,11 @@
-bin_id,location,waste_level,status,last_updated,temperature,bin_type,capacity,daily_average_waste,collection_frequency
-BIN_1,"Nairobi, Westlands, Parklands, Parklands Sublocation, Westlands Ward, Parklands Village, Parklands Street, The Sarit Centre",6,Empty,2025-01-04 18:49:41.424032,18.27,Organic,78,19.2,Daily
-BIN_2,"Mombasa, Mombasa Island, Mombasa Town, Old Town Sublocation, Mombasa Ward, Old Town Village, Moi Avenue, Mombasa Building",79,Full,2025-01-02 12:49:41.424074,39.15,Plastic,66,10.93,Weekly
-BIN_3,"Kisumu, Kisumu East, Milimani, Milimani Sublocation, Kisumu Town East Ward, Milimani Village, Oginga Odinga Street, Kisumu Mall",30,Empty,2025-01-02 18:49:41.424092,35.59,Paper,126,6.83,Weekly
-BIN_4,"Nakuru, Nakuru East, Kiamunyi, Kiamunyi Sublocation, Nakuru East Ward, Kiamunyi Village, Kenyatta Avenue, Nakuru Building",39,Half Full,2024-12-31 19:49:41.424103,18.1,Paper,107,11.63,Bi-Weekly
-BIN_5,"Eldoret, Uasin Gishu, Eldoret Central, Eldoret Town Sublocation, Eldoret Ward, Eldoret Village, Kipkarren Street, Eldoret Plaza",15,Empty,2025-01-05 09:49:41.424114,30.44,Plastic,63,17.51,Daily
-BIN_6,"Nairobi, Starehe, Pangani, Pangani Sublocation, Starehe Ward, Pangani Village, Moi Avenue, Pangani Building",100,Full,2025-01-03 23:49:41.424124,35.24,Metal,81,16.14,Bi-Weekly
-BIN_7,"Mombasa, Changamwe, Port Reitz, Port Reitz Sublocation, Changamwe Ward, Port Reitz Village, Mombasa Road, Port Mombasa Building",26,Empty,2025-01-01 20:49:41.444321,27.11,Organic,101,13.21,Daily
-BIN_8,"Kisumu, Kisumu West, Kibuye, Kibuye Sublocation, Kisumu West Ward, Kibuye Village, Oile Road, Kibuye Building",1,Empty,2025-01-01 16:49:41.444401,35.0,Plastic,133,13.08,Weekly
-BIN_9,"Nakuru, Nakuru West, Lanet, Lanet Sublocation, Nakuru West Ward, Lanet Village, Lanet Road, Lanet Mall",39,Half Full,2025-01-05 04:49:41.444421,25.25,Metal,101,18.08,Bi-Weekly
-BIN_10,"Eldoret, Uasin Gishu, Zion, Zion Sublocation, Eldoret West Ward, Zion Village, Zion Street, Zion Building",41,Half Full,2025-01-01 02:49:41.444439,32.81,Metal,135,16.92,Weekly
+bin_id,location,waste_level,status,last_updated,temperature,bin_type,capacity,daily_average_waste,collection_frequency,latitude,longitude
+BIN_1,"Nairobi, Westlands, Parklands, The Sarit Centre",6,Empty,2025-01-04 18:49:41.424032,18.27,Organic,78,19.2,Daily,-1.262186,36.805055
+BIN_2,"Mombasa, Old Town, Moi Avenue, Mombasa Building",79,Full,2025-01-02 12:49:41.424074,39.15,Plastic,66,10.93,Weekly,-4.061387,39.666245
+BIN_3,"Kisumu, Milimani, Oginga Odinga Street, Kisumu Mall",30,Empty,2025-01-02 18:49:41.424092,35.59,Paper,126,6.83,Weekly,-0.091702,34.767957
+BIN_4,"Nakuru, Kiamunyi, Kenyatta Avenue, Nakuru Building",39,Half Full,2024-12-31 19:49:41.424103,18.1,Paper,107,11.63,Bi-Weekly,-0.285236,36.071958
+BIN_5,"Eldoret, Kipkarren Street, Eldoret Plaza",15,Empty,2025-01-05 09:49:41.424114,30.44,Plastic,63,17.51,Daily,0.520192,35.27752
+BIN_6,"Nairobi, Pangani, Moi Avenue, Pangani Building",100,Full,2025-01-03 23:49:41.424124,35.24,Metal,81,16.14,Bi-Weekly,-1.283253,36.828711
+BIN_7,"Mombasa, Port Reitz, Port Mombasa Building",26,Empty,2025-01-01 20:49:41.444321,27.11,Organic,101,13.21,Daily,-4.040554,39.641271
+BIN_8,"Kisumu, Kibuye, Oile Road, Kibuye Building",1,Empty,2025-01-01 16:49:41.444401,35.0,Plastic,133,13.08,Weekly,-0.094606,34.759593
+BIN_9,"Nakuru, Lanet, Lanet Mall",39,Half Full,2025-01-05 04:49:41.444421,25.25,Metal,101,18.08,Bi-Weekly,-0.283634,36.081892
+BIN_10,"Eldoret, Zion, Zion Building",41,Half Full,2025-01-01 02:49:41.444439,32.81,Metal,135,16.92,Weekly,0.514277,35.276978

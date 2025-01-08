@@ -43,12 +43,13 @@ def register_view(request):
 def admin_dashboard(request):
     return render(request, 'accounts/admin_dashboard.html')
 
+
 import os
 import csv
 from django.conf import settings
 from django.shortcuts import render
 
-
+@login_required
 def municipal_dashboard(request):
     # Get the absolute path to the CSV file
     csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
@@ -66,4 +67,3 @@ def municipal_dashboard(request):
         bins = [bin for bin in bins if bin['status'] == status_filter]
 
     return render(request, 'accounts/municipal_dashboard.html', {'bins': bins})
-
