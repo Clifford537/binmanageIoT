@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+
+{% block title %}Municipal Dashboard{% endblock %}
+
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Bin Data</title>
+    
+    <!-- Include Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+       .bin-data-page main {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 20px;
+            background-color: #f4f7f6;
+        }
+
+        .bin-data-page h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+        }
+
+        .bin-data-page #form-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin: 0 20px; /* Added margin from left and right */
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .bin-data-page .form-column {
+            flex: 1;
+            min-width: 45%; /* Reduced width for the form column */
+        }
+
+        .bin-data-page .form-group {
+            margin-bottom: 12px; /* Reduced margin between fields */
+        }
+
+        .bin-data-page .form-group label {
+            font-weight: bold;
+            font-size: 14px; /* Reduced label font size */
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .bin-data-page .form-group input, .bin-data-page .form-group select {
+            width: 100%;
+            padding: 8px; /* Reduced padding */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px; /* Reduced font size */
+        }
+
+        .bin-data-page button {
+            background-color: #d4a53f;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 30%;
+            margin-left: 30%;
+            margin-right: 30%;
+            font-size: 17px; /* Reduced font size */
+            font-weight: bold;
+        }
+
+        .bin-data-page button:hover {
+            background-color: #45a049;
+        }
+
+        .bin-data-page #map {
+            height: 350px; /* Reduced map height */
+            width: 100%;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .bin-data-page .form-group input[readonly] {
+            background-color: #f9f9f9;
+        }
+
+        /* Responsive layout */
+        @media (max-width: 768px) {
+            .bin-data-page #form-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .bin-data-page .form-column {
+                width: 100%;
+            }
+
+            .bin-data-page #map {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<div class="bin-data-page">
+    <h1>Add Bin Data</h1>
+
+    <!-- Display Django messages (success/error) -->
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div id="form-container">
+        <!-- Form Fields Column -->
+        <div class="form-column">
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Bin ID field with BIN_ prefix -->
+                <div class="form-group">
+                    <label for="id_bin_id">Bin ID:</label>
+                    <input type="number" id="id_bin_id" name="bin_id" value="{{ form.bin_id.value }}" required>
+                </div>
+
+                <!-- Waste Level -->
+                <div class="form-group">
+                    <label for="id_waste_level">Waste Level:</label>
+                    <input type="number" id="id_waste_level" name="waste_level" value="{{ form.waste_level.value }}" required>
+                </div>
+
+                <!-- Status -->
+                <div class="form-group">
+                    <label for="id_status">Status:</label>
+                    <select id="id_status" name="status">
+                        {% for choice in form.status.field.choices %}
+                            <option value="{{ choice.0 }}" {% if choice.0 == form.status.value %}selected{% endif %}>
+                                {{ choice.1 }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Temperature -->
+                <div class="form-group">
+                    <label for="id_temperature">Temperature:</label>
+                    <input type="number" id="id_temperature" name="temperature" value="{{ form.temperature.value }}" step="0.01" required>
+                </div>
+
+                <!-- Bin Type -->
+                <div class="form-group">
+                    <label for="id_bin_type">Bin Type:</label>
+                    <select id="id_bin_type" name="bin_type">
+                        {% for choice in form.bin_type.field.choices %}
+                            <option value="{{ choice.0 }}" {% if choice.0 == form.bin_type.value %}selected{% endif %}>
+                                {{ choice.1 }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Capacity -->
+                <div class="form-group">
+                    <label for="id_capacity">Capacity:</label>
+                    <input type="number" id="id_capacity" name="capacity" value="{{ form.capacity.value }}" required>
+                </div>
+
+                <!-- Daily Average Waste -->
+                <div class="form-group">
+                    <label for="id_daily_average_waste">Daily Average Waste:</label>
+                    <input type="number" id="id_daily_average_waste" name="daily_average_waste" value="{{ form.daily_average_waste.value }}" step="0.01" required>
+                </div>
+
+                <!-- Collection Frequency -->
+                <div class="form-group">
+                    <label for="id_collection_frequency">Collection Frequency:</label>
+                    <select id="id_collection_frequency" name="collection_frequency">
+                        {% for choice in form.collection_frequency.field.choices %}
+                            <option value="{{ choice.0 }}" {% if choice.0 == form.collection_frequency.value %}selected{% endif %}>
+                                {{ choice.1 }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <!-- Map Column -->
+        <div class="form-column">
+            <h2>Map: Select Bin Location</h2>
+
+            <!-- Map container -->
+            <div id="map"></div>
+
+            <!-- Latitude and Longitude Fields -->
+            <div class="form-group">
+                <label for="id_latitude">Latitude:</label>
+                <input type="text" name="latitude" id="id_latitude" value="{{ form.latitude.value }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="id_longitude">Longitude:</label>
+                <input type="text" name="longitude" id="id_longitude" value="{{ form.longitude.value }}" readonly>
+            </div>
+
+            <!-- Location Field -->
+            <div class="form-group">
+                <label for="id_location">Location:</label>
+                <input type="text" name="location" id="id_location" value="{{ form.location.value }}" readonly>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit">Add Bin</button>
+        </div> 
+    </div>
+    <br> <br> <br> <br><br>
+    <!-- Include Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([1.2921, 36.8219], 13);  // Default to Nairobi coordinates
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // When the user clicks on the map
+        map.on('click', function(e) {
+            var lat = e.latlng.lat;
+            var lon = e.latlng.lng;
+
+            // Update the latitude and longitude input fields from the form
+            document.getElementById('id_latitude').value = lat;
+            document.getElementById('id_longitude').value = lon;
+
+            // Use reverse geocoding to get the location based on the coordinates
+            var geocodeUrl = 'https://nominatim.openstreetmap.org/reverse?lat=' + lat + '&lon=' + lon + '&format=json';
+
+            fetch(geocodeUrl)
+                .then(response => response.json())
+                .then(data => {
+                    var location = data.display_name;
+                    document.getElementById('id_location').value = location;  // Autofill the location field
+                })
+                .catch(error => {
+                    console.error('Error fetching location:', error);
+                    document.getElementById('id_location').value = 'Unable to retrieve location';
+                });
+
+            // Optional: Add a marker to show the selected location
+            L.marker([lat, lon]).addTo(map)
+                .bindPopup("Selected Location: " + lat.toFixed(5) + ", " + lon.toFixed(5))
+                .openPopup();
+        });
+    </script>
+
+</div>
+
+{% endblock %}

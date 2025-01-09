@@ -7,36 +7,32 @@
     <title>Municipal Dashboard</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        .chart-container {
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .chart {
+            height: 300px;
+            width: 100%;
+        }
         #map {
             height: 400px;
             width: 100%;
             margin-top: 20px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            position: relative;
-            overflow: hidden; /* Ensures map remains interactive */
-        }
-        .table-container {
-            margin-top: 20px;
-        }
-        .status-full {
-            color: red;
-            font-weight: bold;
-        }
-        .status-half {
-            color: orange;
-            font-weight: bold;
-        }
-        .status-empty {
-            color: green;
-            font-weight: bold;
         }
         .legend {
             margin-top: 20px;
+            padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            padding: 10px;
             background-color: #f8f9fa;
         }
         .legend .status {
@@ -55,21 +51,15 @@
             background-color: red;
         }
         .status-half-icon {
-            background-color: orange;
+            background-color: rgb(212, 131, 25); /* Orange */
         }
         .status-empty-icon {
             background-color: green;
-        }
-        @media (max-width: 768px) {
-            #map {
-                height: 300px;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="mt-4">Municipal Dashboard</h1>
         <p>Welcome, {{ user.username }}!</p>
 
         <div class="row">
@@ -80,102 +70,223 @@
 
             <!-- Legend Section -->
             <div class="col-md-4">
-                <div class="legend">
-                    <h5>Legend</h5>
-                    <div class="status">
-                        <span class="status-full-icon"></span>
-                        <p>Full</p>
-                    </div>
-                    <div class="status">
-                        <span class="status-half-icon"></span>
-                        <p>Half Full</p>
-                    </div>
-                    <div class="status">
-                        <span class="status-empty-icon"></span>
-                        <p>Empty</p>
-                    </div>
+<div class="legend">
+    <h5>Bin Status Count</h5>
+    <ul class="list-unstyled">
+        <li style="display: flex; align-items: center;">
+            <div style="width: 20px; height: 20px; background-color: red; margin-right: 10px;"></div>
+            <strong>Full:</strong> {{ status_count.Full }} bins
+        </li>
+        <li style="display: flex; align-items: center;">
+            <div style="width: 20px; height: 20px; background-color: rgb(212, 131, 25); margin-right: 10px;"></div>
+            <strong>Half_Full:</strong> {{ status_count.Half_Full }} bins
+        </li>
+        <li style="display: flex; align-items: center;">
+            <div style="width: 20px; height: 20px; background-color: green; margin-right: 10px;"></div>
+            <strong>Empty:</strong> {{ status_count.Empty }} bins
+        </li>
+    </ul>
+</div>
+
+                
+            </div>
+        </div>
+
+        <!-- Analysis Section -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="chart-container">
+                    <h3>Bin Status Count</h3>
+                    <canvas id="statusChart" class="chart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chart-container">
+                    <h3>Bin Count by City</h3>
+                    <canvas id="cityChart" class="chart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="chart-container">
+                    <h3>Bin Material Breakdown</h3>
+                    <canvas id="materialChart" class="chart"></canvas>
                 </div>
             </div>
         </div>
 
-        <!-- Table Section -->
-        <div class="table-container">
-            <h2 class="mt-4">Bin Details</h2>
-            <table class="table table-striped table-bordered">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Bin ID</th>
-                        <th>Location</th>
-                        <th>Waste Level</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for bin in bins %}
-                    <tr>
-                        <td>{{ bin.bin_id }}</td>
-                        <td>{{ bin.location }}</td>
-                        <td>{{ bin.waste_level }}%</td>
-                        <td class="
-                            {% if bin.status == 'Full' %}status-full
-                            {% elif bin.status == 'Half Full' %}status-half
-                            {% else %}status-empty
-                            {% endif %}
-                        ">
-                            {{ bin.status }}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div> <br> <br> <br> <br>
-    </div> <br> <br>
+        <!-- Collection Frequency and Daily Average Waste -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3>Collection Frequency</h3>
+                    <canvas id="collectionFrequencyChart" class="chart"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h3>Daily Average Waste</h3>
+                    <canvas id="dailyAverageWasteChart" class="chart"></canvas>
+                </div>
+            </div>
+  
+        </div> 
+        <br> <br> <br> <br><br><br> <br> <br> <br> <br><br><br>
+        <div>
 
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-    <script>
-        // Initialize the map
-        var map = L.map('map', {
-            scrollWheelZoom: true, // Enable scroll wheel zoom
-            dragging: true
-        }).setView([-1.286389, 36.817223], 6); // Centered in Kenya
+        </div>
 
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+        <script>
+            // Data from Django
+            const statusCount = JSON.parse('{{ status_count|escapejs }}');
+            const binCountByCity = JSON.parse('{{ bin_count_by_city|escapejs }}');
+            const materialAnalysis = JSON.parse('{{ material_analysis|escapejs }}');
+            const tempAnalysis = JSON.parse('{{ temp_analysis|escapejs }}');
 
-        // Add bins as markers with color-coded styles
-        var bins = {{ bins|safe }}; // Bins data passed from Django context
-        bins.forEach(bin => {
-            var markerColor;
+            // Prepare Data for Charts
+            const statusLabels = Object.keys(statusCount);
+            const statusValues = Object.values(statusCount);
 
-            // Assign marker color based on status
-            if (bin.status === 'Full') {
-                markerColor = "red";
-            } else if (bin.status === 'Half Full') {
-                markerColor = "orange";
-            } else {
-                markerColor = "green";
-            }
+            const cityLabels = Object.keys(binCountByCity);
+            const cityValues = Object.values(binCountByCity);
 
-            // Create a custom marker with bin ID as label
-            var customIcon = L.divIcon({
-                className: 'custom-icon',
-                html: `<div style="background-color: ${markerColor}; color: white; border-radius: 10%; width: 40px; height: 20px; display: flex; justify-content: center; align-items: center; font-size: 10px; font-weight: bold;">${bin.bin_id}</div>`
+            const materialLabels = Object.keys(materialAnalysis);
+            const materialValues = Object.values(materialAnalysis);
+
+            const tempLabels = tempAnalysis.map(item => item['status']);
+            const tempMeans = tempAnalysis.map(item => item['mean']);
+            const tempStdDevs = tempAnalysis.map(item => item['std']);
+
+            // Status Count Bar Chart
+            new Chart(document.getElementById('statusChart'), {
+                type: 'bar',
+                data: {
+                    labels: statusLabels,
+                    datasets: [{
+                        label: 'Count of Bins',
+                        data: statusValues,
+                        backgroundColor: ['green', 'orange', 'red'], // Green for Empty, Orange for Half Full, Red for Full
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Bin Status Count' }
+                    }
+                }
             });
 
-            // Add marker to map
-            L.marker([parseFloat(bin.latitude), parseFloat(bin.longitude)], { icon: customIcon })
-                .addTo(map)
-                .bindPopup(`
-                    <b>Bin ID: ${bin.bin_id}</b><br>
-                    <b>Location:</b> ${bin.location}<br>
-                    <b>Status:</b> ${bin.status}<br>
-                    <b>latitude:</b> ${bin.latitude}<br>
-                    <b>longitude:</b> ${bin.longitude}<br>
-                    <b>Waste Level:</b> ${bin.waste_level}%`);
-        });
-    </script>
+            // Bin Count by City Pie Chart
+            new Chart(document.getElementById('cityChart'), {
+                type: 'pie',
+                data: {
+                    labels: cityLabels,
+                    datasets: [{
+                        data: cityValues,
+                        backgroundColor: ['blue', 'purple', 'yellow', 'green', 'orange'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: { display: true, text: 'Bin Count by City' }
+                    }
+                }
+            });
 
+            // Material Breakdown Bar Chart
+            new Chart(document.getElementById('materialChart'), {
+                type: 'bar',
+                data: {
+                    labels: materialLabels,
+                    datasets: [{
+                        label: 'Bin Count',
+                        data: materialValues,
+                        backgroundColor: ['brown', 'gray', 'blue', 'green'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Bin Material Breakdown' }
+                    }
+                }
+            });
+
+            // Collection Frequency Bar Chart
+            new Chart(document.getElementById('collectionFrequencyChart'), {
+                type: 'bar',
+                data: {
+                    labels: materialLabels,
+                    datasets: [{
+                        label: 'Collection Frequency',
+                        data: materialValues,  // You can change this to the collection frequency data as needed
+                        backgroundColor: ['brown', 'gray', 'blue', 'green'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Collection Frequency' }
+                    }
+                }
+            });
+
+            // Daily Average Waste Bar Chart
+            new Chart(document.getElementById('dailyAverageWasteChart'), {
+                type: 'bar',
+                data: {
+                    labels: materialLabels,
+                    datasets: [{
+                        label: 'Daily Average Waste',
+                        data: materialValues,  // You can change this to the daily average waste data as needed
+                        backgroundColor: ['brown', 'gray', 'blue', 'green'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: true, text: 'Daily Average Waste' }
+                    }
+                }
+            });
+        </script>
+
+        <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+        <script>
+            // Initialize the map
+            var map = L.map('map').setView([-1.286389, 36.817223], 6); // Centered in Kenya
+
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add bins as markers with color-coded styles
+            var bins = {{ bins|safe }};
+            bins.forEach(bin => {
+                var markerColor = bin.status === 'Full' ? "red" : (bin.status === 'Half Full' ? "orange" : "green");
+
+                var customIcon = L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div style="background-color: ${markerColor}; color: white; border-radius: 10%; width: 40px; height: 20px; display: flex; justify-content: center; align-items: center; font-size: 10px;">${bin.bin_id}</div>`
+                });
+
+                L.marker([parseFloat(bin.latitude), parseFloat(bin.longitude)], { icon: customIcon })
+                    .addTo(map)
+                    .bindPopup(`
+                        <b>Bin ID:</b> ${bin.bin_id}<br>
+                        <b>Location:</b> ${bin.location}<br>
+                        <b>Status:</b> ${bin.status}<br>
+                        <b>Waste Level:</b> ${bin.waste_level}%<br>
+                        <b>Capacity:</b> ${bin.capacity}<br>
+                    `);
+            });
+        </script>
+    </div>
+</body>
 {% endblock %}
