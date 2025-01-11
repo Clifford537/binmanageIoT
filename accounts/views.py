@@ -47,51 +47,6 @@ def register_view(request):
     return render(request, 'accounts/register.html', {'form': form})
 
 
-import json
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-import os
-import csv
-from django.conf import settings
-
-@login_required
-def admin_dashboard(request):
-    bins = []
-
-    # Define the path to the CSV file
-    csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
-
-    try:
-        # Read and parse the CSV file
-        with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
-            reader = csv.DictReader(csvfile)
-
-            for row in reader:
-                bins.append({
-                    "bin_id": row["bin_id"],
-                    "latitude": row["latitude"],
-                    "longitude": row["longitude"],
-                    "location": row["location"],
-                    "waste_level": row["waste_level"],
-                    "status": row["status"],
-                    "last_updated": row["last_updated"],
-                    "temperature": row["temperature"],
-                    "bin_type": row["bin_type"],
-                    "capacity": row["capacity"],
-                    "daily_average_waste": row["daily_average_waste"],
-                    "collection_frequency": row["collection_frequency"]
-                })
-
-        # Success message
-        messages.success(request, f"Successfully loaded {len(bins)} bins.")
-    
-    except FileNotFoundError:
-        messages.error(request, "CSV file not found.")
-
-    # Pass the bins as a JSON string
-    return render(request, "accounts/admin_dashboard.html", {"bins": json.dumps(bins)})
-
 
 @login_required
 def municipal_dashboard(request):
@@ -176,3 +131,133 @@ def add_bin(request):
 
     return render(request, 'accounts/create_bin.html', {'form': form})
 
+
+@login_required
+def admin_dashboard(request):
+    # Define the path to the CSV file
+    csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
+
+    # Read the CSV file
+    bins = []
+    with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            bins.append(row)
+
+    # Pass data to the template
+    return render(request, 'accounts/admin_dashboard.html', {'bins': bins})
+
+
+@login_required
+def delete_bin(request, bin_id):
+    # Define the path to the CSV file
+    csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
+
+    # Read the current CSV data
+    bins = []
+    with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        bins = [row for row in reader if row['bin_id'] != bin_id]  # Exclude the bin with the given bin_id
+
+    # Write the updated data back to the CSV
+    fieldnames = ['bin_id', 'location', 'waste_level', 'status', 'last_updated', 'temperature', 
+                  'bin_type', 'capacity', 'daily_average_waste', 'collection_frequency', 'latitude', 
+                  'longitude', 'contact']
+    with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(bins)
+
+    return redirect('admin_dashboard')
+
+
+@login_required
+def edit_bin(request, bin_id):
+    # Define the path to the CSV file
+    csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
+
+    # Read the current CSV data
+    bins = []
+    with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            bins.append(row)
+
+    # Find the bin to edit
+    bin_to_edit = next((bin for bin in bins if bin['bin_id'] == bin_id), None)
+    if not bin_to_edit:
+        return render(request, 'accounts/admin_dashboard.html', {'bins': bins, 'error': 'Bin not found'})
+
+    if request.method == 'POST':
+        # Update bin data from the form
+        for key in bin_to_edit.keys():
+            if key in request.POST:
+                bin_to_edit[key] = request.POST[key]
+
+        # Write the updated data back to the CSV
+        fieldnames = ['bin_id', 'location', 'waste_level', 'status', 'last_updated', 'temperature', 
+                      'bin_type', 'capacity', 'daily_average_waste', 'collection_frequency', 'latitude', 
+                      'longitude', 'contact']
+        with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(bins)
+
+        return redirect('admin_dashboard')
+
+    return render(request, 'accounts/edit_bin.html', {'bin': bin_to_edit})
+
+@login_required
+@login_required
+def empty_bin(request, bin_id):
+    csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
+
+    # Read and update the CSV data
+    bins = []
+    with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row['bin_id'] == bin_id:
+                row['waste_level'] = '0'  # Set waste level to 0 when bin is emptied
+                # Increment the collection frequency by 1 (ensure it's an integer)
+                current_frequency = int(row['collection_frequency'])
+                row['collection_frequency'] = str(current_frequency + 1)
+            bins.append(row)
+
+    # Write the updated data back to the CSV
+    fieldnames = ['bin_id', 'location', 'waste_level', 'status', 'last_updated', 'temperature', 
+                  'bin_type', 'capacity', 'daily_average_waste', 'collection_frequency', 'latitude', 
+                  'longitude', 'contact']
+    with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(bins)
+
+    return redirect('admin_dashboard')
+
+@login_required
+def add_dust_to_bin(request, bin_id):
+    csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
+
+    # Read and update the CSV data
+    bins = []
+    with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row['bin_id'] == bin_id:
+                current_level = int(row['waste_level'])
+                max_capacity = int(row['capacity'])
+                new_level = min(current_level + 10, max_capacity)  # Increase waste level by 10, not exceeding capacity
+                row['waste_level'] = str(new_level)
+            bins.append(row)
+
+    # Write the updated data back to the CSV
+    fieldnames = ['bin_id', 'location', 'waste_level', 'status', 'last_updated', 'temperature', 
+                  'bin_type', 'capacity', 'daily_average_waste', 'collection_frequency', 'latitude', 
+                  'longitude', 'contact']
+    with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(bins)
+
+    return redirect('admin_dashboard')

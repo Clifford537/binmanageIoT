@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Bin</title>
+</head>
+<body>
+    <h1>Edit Bin: {{ bin.bin_id }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% for key, value in bin.items %}
+            <label for="{{ key }}">{{ key }}</label>
+            <input type="text" name="{{ key }}" id="{{ key }}" value="{{ value }}" {% if key == 'bin_id' %}readonly{% endif %}>
+            <br>
+        {% endfor %}
+        <button type="submit">Save Changes</button>
+    </form>
+</body>
+</html>
