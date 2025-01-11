@@ -1,41 +1,188 @@
-<!-- templates/accounts/login.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+  <base href="." />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trash Nova - Login</title>
+  <style>
+    /* Insert the CSS from your theme here */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.6;
+      color: #2C3E50;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #3498DB, #2980B9);
+    }
+
+    .login-container {
+      max-width: 400px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo-section {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .logo-link {
+      text-decoration: none;
+      color: #2C3E50;
+      font-size: 1.8rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .form-title {
+      text-align: center;
+      color: #2C3E50;
+      margin-bottom: 2rem;
+      font-size: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #2C3E50;
+      font-weight: 500;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.8rem;
+      border: 2px solid #E0E0E0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #3498DB;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 1rem;
+      background: #27AE60;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .login-btn:hover {
+      background: #2ECC71;
+      transform: translateY(-2px);
+    }
+
+    .forgot-password {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .forgot-password a {
+      color: #3498DB;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .signup-prompt {
+      text-align: center;
+      margin-top: 2rem;
+      color: #7F8C8D;
+    }
+
+    .signup-prompt a {
+      color: #3498DB;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-container {
+      animation: fadeIn 0.8s ease-out;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h2>Login</h2>
+<div class="login-container">
+  <div class="logo-section">
+    <a href="https://trashnova.com" class="logo-link">
+      <svg width="30" height="30" viewBox="0 0 24 24">
+        <path fill="#2C3E50" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+      </svg>
+      Trash Nova
+    </a>
+  </div>
 
-    <!-- Display any error messages -->
-    {% if messages %}
-        <div>
-            {% for message in messages %}
-                <p style="color: red;">{{ message }}</p>
-            {% endfor %}
-        </div>
-    {% endif %}
+  <h1 class="form-title">Welcome Back</h1>
 
-    <form method="POST">
-        {% csrf_token %}
-        
-        <!-- Username Input -->
-        <div>
-            <label for="username">Username:</label>
-            <input type="text" name="username" id="username" placeholder="Enter Username" required>
-        </div>
+  <!-- Display error messages -->
+  {% if messages %}
+  <div>
+    {% for message in messages %}
+    <p style="color: red;">{{ message }}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
 
-        <!-- Password Input -->
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" name="password" id="password" placeholder="Enter Password" required>
-        </div>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="username" class="form-label">Username</label>
+      <input type="text" name="username" id="username" class="form-input" placeholder="Enter your username" required>
+    </div>
 
-        <!-- Submit Button -->
-        <button type="submit">Login</button>
-    </form>
+    <div class="form-group">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" name="password" id="password" class="form-input" placeholder="Enter your password" required>
+    </div>
 
+    <button type="submit" class="login-btn">Log In</button>
+  </form>
+
+  <div class="forgot-password">
+    <a href="{% url 'login' %}">Forgot your password?</a>
+  </div>
+
+  <div class="signup-prompt">
+    Don't have an account? <a href="{% url 'register' %}">Sign up</a>
+  </div>
+</div>
 </body>
 </html>
