@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import PasswordChangeForm
 from .models import User  # Import your custom User model
 
 class CustomUserCreationForm(UserCreationForm):
@@ -30,11 +31,6 @@ BIN_TYPE_CHOICES = [
     ('Metal', 'Metal'),
 ]
 
-COLLECTION_FREQUENCY_CHOICES = [
-    ('Daily', 'Daily'),
-    ('Weekly', 'Weekly'),
-    ('Bi-Weekly', 'Bi-Weekly'),
-]
 
 class BinForm(forms.Form):
     bin_id  = forms.IntegerField()
@@ -45,7 +41,13 @@ class BinForm(forms.Form):
     bin_type = forms.ChoiceField(choices=BIN_TYPE_CHOICES)
     capacity = forms.IntegerField()
     daily_average_waste = forms.FloatField()
-    collection_frequency = forms.ChoiceField(choices=COLLECTION_FREQUENCY_CHOICES)
+    collection_frequency = forms.IntegerField()
     latitude = forms.FloatField()
     longitude = forms.FloatField()
 
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    # You can customize fields or validation here if needed
+    old_password = forms.CharField(widget=forms.PasswordInput, label="Old Password")
+    new_password1 = forms.CharField(widget=forms.PasswordInput, label="New Password")
+    new_password2 = forms.CharField(widget=forms.PasswordInput, label="Confirm New Password")

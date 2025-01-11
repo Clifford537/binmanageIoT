@@ -183,13 +183,7 @@
                 <!-- Collection Frequency -->
                 <div class="form-group">
                     <label for="id_collection_frequency">Collection Frequency:</label>
-                    <select id="id_collection_frequency" name="collection_frequency">
-                        {% for choice in form.collection_frequency.field.choices %}
-                            <option value="{{ choice.0 }}" {% if choice.0 == form.collection_frequency.value %}selected{% endif %}>
-                                {{ choice.1 }}
-                            </option>
-                        {% endfor %}
-                    </select>
+                    <input type="number" id="collection_frequency" name="daily_average_waste" />
                 </div>
             </form>
         </div>

@@ -11,6 +11,9 @@ import os
 import csv
 import pandas as pd
 import json
+from django.contrib.auth import logout
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 
 
 
@@ -46,7 +49,20 @@ def register_view(request):
 
     return render(request, 'accounts/register.html', {'form': form})
 
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()  # Save the new password
+            update_session_auth_hash(request, form.user)  # Keep the user logged in
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('profile')  # Redirect to a profile or desired page
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordChangeForm(request.user)
 
+    return render(request, 'accounts/change_password.html', {'form': form})
 
 @login_required
 def municipal_dashboard(request):
@@ -207,7 +223,13 @@ def edit_bin(request, bin_id):
 
     return render(request, 'accounts/edit_bin.html', {'bin': bin_to_edit})
 
-@login_required
+
+
+def logout_view(request):
+    logout(request)  # Logs the user out
+    return redirect('login')
+
+
 @login_required
 def empty_bin(request, bin_id):
     csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
@@ -261,3 +283,4 @@ def add_dust_to_bin(request, bin_id):
         writer.writerows(bins)
 
     return redirect('admin_dashboard')
+

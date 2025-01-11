@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,36 +7,117 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        #map { 
-            height: 600px; 
-            margin-bottom: 20px;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        h1, h2, h3 {
+            color: #333;
+        }
+
+        #map {
+            height: 600px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .logout-btn {
+            background-color: #28a745;
+        }
+
+        .change-password-btn {
+            background-color: #17a2b8;
+        }
+
+        .header-btn-container {
             margin-top: 20px;
-        }
-
-        table, th, td {
-            border: 1px solid black;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
+            text-align: right;
         }
 
         #chartContainer {
             width: 100%;
             height: 400px;
             margin-top: 40px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        td {
+            background-color: #f9f9f9;
+        }
+
+        td a {
+            color: #fff;
         }
     </style>
 </head>
 <body>
-    <div style="text-align: center;">
+    <div style="text-align: center; margin-top: 20px;">
         <h1>Waste Bin Distribution</h1>
+        <div class="header-btn-container">
+            <a href="{% url 'logout' %}" class="btn logout-btn">Logout</a>
+            <a href="{% url 'change_password' %}" class="btn change-password-btn">Change Password</a>
+        </div>
         <div id="map"></div>
     </div>
 
@@ -63,7 +144,19 @@
         {% endfor %}
     </script>
 
-    <!-- Table displaying bin details below the map -->
+    <!-- Top Bins by Collection Frequency Chart -->
+    <div id="chartContainer">
+        <h3>Top Bins by Collection Frequency</h3>
+        <canvas id="collectionFrequencyChart"></canvas>
+    </div>
+
+    <!-- Daily Average Waste of Bins Chart -->
+    <div id="chartContainer">
+        <h3>Daily Average Waste of Bins</h3>
+        <canvas id="dailyAverageWasteChart"></canvas>
+    </div>
+
+    <!-- Bin Management Table -->
     <div style="margin-top: 20px;">
         <h2>Bin Management</h2>
         <table>
@@ -97,18 +190,6 @@
         </table>
     </div>
 
-    <!-- Chart displaying the top bins based on collection frequency -->
-    <div id="chartContainer">
-        <h3>Top Bins by Collection Frequency</h3>
-        <canvas id="collectionFrequencyChart"></canvas>
-    </div>
-
-    <!-- Chart displaying the daily average waste of bins -->
-    <div id="chartContainer">
-        <h3>Daily Average Waste of Bins</h3>
-        <canvas id="dailyAverageWasteChart"></canvas>
-    </div>
-
     <script>
         // Prepare data for the collection frequency chart
         var binData = [
@@ -135,7 +216,7 @@
                 datasets: [{
                     label: 'Collection Frequency',
                     data: collectionFrequencies,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
                 }]
@@ -158,7 +239,7 @@
                 datasets: [{
                     label: 'Daily Average Waste',
                     data: dailyAverageWaste,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
                     borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1
                 }]

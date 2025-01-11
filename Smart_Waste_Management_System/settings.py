@@ -56,6 +56,8 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'Smart_Waste_Management_System.urls'
 
 AUTH_USER_MODEL = 'accounts.User'
+LOGOUT_REDIRECT_URL = 'login'  # Or any page you want to redirect after logout
+
 
 
 TEMPLATES = [

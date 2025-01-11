@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
     # Main/Home page URL
     path('', views.home_page, name='home'),
@@ -15,4 +16,6 @@ urlpatterns = [
     path('edit_bin/<str:bin_id>/', views.edit_bin, name='edit_bin'),
     path('empty_bin/<str:bin_id>/', views.empty_bin, name='empty_bin'),
     path('add_dust_to_bin/<str:bin_id>/', views.add_dust_to_bin, name='add_dust_to_bin'),
+    path('logout/', views.logout_view, name='logout'),
+    path('change-password/', views.change_password, name='change_password'),
 ]
