@@ -4,10 +4,18 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.forms import PasswordChangeForm
 from .models import User  # Import your custom User model
 
+
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User  # Ensure the form uses your custom User model
         fields = ['username', 'password1', 'password2', 'role']  # Add 'role' to the form fields
+    
+    # Customizing widgets for fields to add 'form-input' class
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-input'}))
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-input'}))
+    role = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-select'}))  # Assuming you are using a select field for 'role'
+
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(label="Username", max_length=100, widget=forms.TextInput(attrs={'placeholder': 'Enter Username'}))
