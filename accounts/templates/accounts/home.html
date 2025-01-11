@@ -1,17 +1,262 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block title %}Home - Smart Waste Management System{% endblock %}
-
-{% block content %}
-    <div class="container">
-        <a href="{% url 'login' %}">Login</a>
-        <a href="{% url 'register' %}">Register</a>
+<html><head><base href="." />
+    <meta charset="UTF-8">
+    <title>Trash Nova - Smart Waste Management</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+    
+      body {
+        font-family: 'Poppins', sans-serif;
+        line-height: 1.6;
+        color: #2C3E50;
+        overflow-x: hidden;
+      }
+    
+      /* Updated with more eye-friendly colors */
+      .hero {
+        background: linear-gradient(135deg, #3498DB, #2980B9);
+        min-height: 100vh;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+    
+      .floating-bins {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+      }
+    
+      .bin {
+        position: absolute;
+        opacity: 0.15;
+        animation: float 20s infinite linear;
+      }
+    
+      @keyframes float {
+        0% { transform: translateY(100vh) rotate(0deg); }
+        100% { transform: translateY(-100px) rotate(360deg); }
+      }
+    
+      .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+      }
+    
+      .logo {
+        font-size: 2rem;
+        color: #ECF0F1;
+        font-weight: bold;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    
+      .nav-links {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+      }
+    
+      .nav-links a {
+        color: #ECF0F1;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+    
+      .nav-links a:hover {
+        text-shadow: 0 0 10px rgba(255,255,255,0.6);
+      }
+    
+      .auth-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-left: 2rem;
+      }
+    
+      .auth-button {
+        padding: 0.5rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none;
+      }
+    
+      .login-btn {
+        background: rgba(236, 240, 241, 0.1);
+        color: #ECF0F1;
+        border: 2px solid #ECF0F1;
+      }
+    
+      .signup-btn {
+        background: #27AE60;
+        color: #ECF0F1;
+        border: 2px solid #27AE60;
+      }
+    
+      .auth-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      }
+    
+      .hero-content {
+        max-width: 1200px;
+        margin: 4rem auto;
+        text-align: center;
+        color: #ECF0F1;
+      }
+    
+      .hero-title {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        animation: fadeIn 1s ease-out;
+      }
+    
+      .hero-subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        animation: fadeIn 1s ease-out 0.5s backwards;
+      }
+    
+      .cta-button {
+        display: inline-block;
+        padding: 1rem 2rem;
+        background: #27AE60;
+        color: #ECF0F1;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        animation: fadeIn 1s ease-out 1s backwards;
+      }
+    
+      .cta-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        background: #2ECC71;
+      }
+    
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-top: 4rem;
+        animation: fadeIn 1s ease-out 1.5s backwards;
+      }
+    
+      .feature-card {
+        background: rgba(236, 240, 241, 0.1);
+        padding: 2rem;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        text-align: left;
+        border: 1px solid rgba(236, 240, 241, 0.2);
+      }
+    
+      .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+      }
+    
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/123456789.js" crossorigin="anonymous"></script>
+    </head>
+    <body>
+    
+    <div class="hero">
+      <div class="floating-bins">
+        <svg class="bin" style="left: 10%; animation-delay: 0s;" width="50" height="50" viewBox="0 0 24 24">
+          <path fill="#ECF0F1" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+        </svg>
+        <svg class="bin" style="left: 30%; animation-delay: 2s;" width="50" height="50" viewBox="0 0 24 24">
+          <path fill="#ECF0F1" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+        </svg>
+        <svg class="bin" style="left: 70%; animation-delay: 4s;" width="50" height="50" viewBox="0 0 24 24">
+          <path fill="#ECF0F1" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+        </svg>
+      </div>
+    
+      <nav class="navbar">
+        <a href="https://trashnova.com" class="logo">
+          <svg width="30" height="30" viewBox="0 0 24 24">
+            <path fill="#ECF0F1" d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+          </svg>
+          Trash Nova
+        </a>
+        <div class="nav-links">
+          <!-- <a href="https://trashnova.com/features">Features</a>
+          <a href="https://trashnova.com/about">About</a>
+          <a href="https://trashnova.com/contact">Contact</a> -->
+          <div class="auth-buttons">
+            <a href="{% url 'login' %}"    class="auth-button login-btn">Login</a>
+            <a  href="{% url 'register' %}"  class="auth-button signup-btn">Sign Up</a>
+          </div>
+        </div>
+      </nav>
+    
+      <div class="hero-content">
+        <h1 class="hero-title">Smart Waste Management</h1>
+        <p class="hero-subtitle">Transform your waste management with AI-powered solutions</p>
+        <a href="{% url 'login' %}"  class="cta-button">Get Started</a>
+    
+        <div class="features">
+          <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3>AI-Powered Sorting</h3>
+            <p>Advanced algorithms ensure precise waste classification and sorting.</p>
+          </div>
+    
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Real-time Analytics</h3>
+            <p>Monitor waste metrics and optimize collection routes efficiently.</p>
+          </div>
+    
+          <div class="feature-card">
+            <div class="feature-icon">♻️</div>
+            <h3>Eco-Friendly Solutions</h3>
+            <p>Reduce environmental impact with smart recycling capabilities.</p>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <!-- Image Gallery with moving images -->
-    <div class="image-gallery">
-        <img src="{% static 'images/image1.png' %}" alt="Image 1">
-        <img src="{% static 'images/IMG.jpg' %}" alt="Image 2">
-        <img src="{% static 'images/image3.jpg' %}" alt="Image 3">
-    </div>
-{% endblock %}
+    
+    <script>
+      function createFloatingBin() {
+        const bin = document.createElement('svg');
+        bin.className = 'bin';
+        bin.style.left = Math.random() * 100 + '%';
+        bin.style.animationDelay = Math.random() * 10 + 's';
+        bin.setAttribute('width', '50');
+        bin.setAttribute('height', '50');
+        bin.setAttribute('viewBox', '0 0 24 24');
+        
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('fill', '#ECF0F1');
+        path.setAttribute('d', 'M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z');
+        
+        bin.appendChild(path);
+        document.querySelector('.floating-bins').appendChild(bin);
+      }
+    
+      for (let i = 0; i < 5; i++) {
+        createFloatingBin();
+      }
+    </script>
+    
+    </body></html>

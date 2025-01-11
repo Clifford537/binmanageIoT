@@ -199,8 +199,6 @@
             <thead>
                 <tr>
                     <th>Bin ID</th>
-                    <th>Latitude</th>
-                    <th>Longitude</th>
                     <th>Waste Level</th>
                     <th>Collection Frequency</th>
                     <th>Actions</th>
@@ -210,13 +208,11 @@
                 {% for bin in bins %}
                     <tr>
                         <td>{{ bin.bin_id }}</td>
-                        <td>{{ bin.latitude }}</td>
-                        <td>{{ bin.longitude }}</td>
                         <td>{{ bin.waste_level }}</td>
                         <td>{{ bin.collection_frequency }}</td>
                         <td style="text-align: center;">
                             <a href="{% url 'empty_bin' bin.bin_id %}" class="btn btn-primary" style="margin-right: 5px;">Empty Bin</a>
-                            <a href="{% url 'add_dust_to_bin' bin.bin_id %}" class="btn btn-secondary" style="margin-right: 5px;">Add Dust</a>
+                            <a href="{% url 'add_dust_to_bin' bin.bin_id %}" class="btn btn-secondary" style="margin-right: 5px;">Add Waste</a>
                             <a href="{% url 'edit_bin' bin.bin_id %}" class="btn btn-warning" style="margin-right: 5px;">Edit</a>
                             <a href="{% url 'delete_bin' bin.bin_id %}" class="btn btn-danger">Delete</a>
                         </td>

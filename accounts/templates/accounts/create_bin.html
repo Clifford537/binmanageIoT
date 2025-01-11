@@ -118,10 +118,10 @@
     {% endif %}
 
     <div id="form-container">
+        <!-- First Column (Form Fields) -->
         <div class="form-column">
             <form method="post">
                 {% csrf_token %}
-
                 <!-- Bin ID -->
                 <div class="form-group">
                     <label for="id_bin_id">Bin ID:</label>
@@ -205,6 +205,7 @@
             </form>
         </div>
 
+        <!-- Second Column (Map) -->
         <div class="form-column">
             <h2>Map: Select Bin Location</h2>
             <div id="map"></div>
