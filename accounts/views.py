@@ -69,43 +69,15 @@ def municipal_dashboard(request):
     # Get the absolute path to the CSV file
     csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
 
-    # Load data into a Pandas DataFrame
-    df = pd.read_csv(csv_file_path)
+    # Read the CSV file
+    bins = []
+    with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            bins.append(row)
 
-    # Convert relevant columns to numeric
-    numeric_columns = ['temperature', 'waste_level', 'capacity']
-    for col in numeric_columns:
-        df[col] = pd.to_numeric(df[col], errors='coerce')
-
-    # Drop rows with NaN in critical columns
-    df = df.dropna(subset=numeric_columns)
-
-    # Aggregated data
-    status_count = df['status'].value_counts().to_dict()
-    status_count = {key.replace(" ", "_"): value for key, value in status_count.items()}  # Replace spaces with underscores
-
-    # Bin count by city
-    bin_count_by_city = df['location'].apply(lambda x: x.split(",")[0]).value_counts().to_dict()
-
-    # Material type analysis
-    material_analysis = df['bin_type'].value_counts().to_dict()
-
-    # Temperature statistics by status
-    temp_analysis = df.groupby('status')['temperature'].agg(['mean', 'std']).reset_index().to_dict('records')
-
-    # Collection frequency count
-    collection_frequency_count = df['collection_frequency'].value_counts().to_dict()
-
-    # Prepare context data
-    context = {
-        'bins': json.dumps(df.to_dict('records')),
-        'status_count': json.dumps(status_count),
-        'bin_count_by_city': json.dumps(bin_count_by_city),
-        'material_analysis': json.dumps(material_analysis),
-        'temp_analysis': json.dumps(temp_analysis),
-        'collection_frequency_count': json.dumps(collection_frequency_count),
-    }
-    return render(request, 'accounts/municipal_dashboard.html', context)
+    # Pass data to the template
+    return render(request, 'accounts/admin_dashboard.html', {'bins': bins})
 
 # View for adding bin dataimport os
 

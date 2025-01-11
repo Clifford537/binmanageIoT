@@ -1,292 +1,306 @@
-{% extends 'base.html' %}
-
-{% block title %}Municipal Dashboard{% endblock %}
-
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Municipal Dashboard</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .chart-container {
-            margin: 20px 0;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            text-align: center;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
         }
-        .chart {
-            height: 300px;
-            width: 100%;
+
+        h1, h2, h3 {
+            color: #333;
         }
+
         #map {
             height: 400px;
-            width: 100%;
-            margin-top: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            width: 800px;
+            margin-left: 30px;
+            margin-top: 10px;
+            
         }
-        .legend {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ddd;
+
+        .btn {
+            padding: 10px 15px;
             border-radius: 5px;
-            background-color: #f8f9fa;
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            margin: 5px;
+            transition: all 0.3s;
         }
-        .legend .status {
+
+        .btn-primary {
+            background-color: #007bff;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+        .logout-btn {
+            background-color: #28a745;
+        }
+
+        .change-password-btn {
+            background-color: #17a2b8;
+        }
+
+        .header-btn-container {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        /* Chart Container Styling for Flexbox */
+        .chart-container {
             display: flex;
-            align-items: center;
-            margin-bottom: 5px;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 40px;
         }
-        .legend .status span {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 10px;
-            border-radius: 50%;
+
+        #chartContainer {
+            width: 48%;
+            height: 300px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .status-full-icon {
-            background-color: red;
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        .status-half-icon {
-            background-color: rgb(212, 131, 25); /* Orange */
+
+        table, th, td {
+            border: 1px solid #ddd;
         }
-        .status-empty-icon {
-            background-color: green;
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        td {
+            background-color: #f9f9f9;
+        }
+
+        td a {
+            color: #fff;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <p>Welcome, {{ user.username }}!</p>
-
-        <div class="row">
-            <!-- Map Section -->
-            <div class="col-md-8">
-                <div id="map"></div>
-            </div>
-
-            <!-- Legend Section -->
-            <div class="col-md-4">
-<div class="legend">
-    <h5>Bin Status Count</h5>
-    <ul class="list-unstyled">
-        <li style="display: flex; align-items: center;">
-            <div style="width: 20px; height: 20px; background-color: red; margin-right: 10px;"></div>
-            <strong>Full:</strong> {{ status_count.Full }} bins
-        </li>
-        <li style="display: flex; align-items: center;">
-            <div style="width: 20px; height: 20px; background-color: rgb(212, 131, 25); margin-right: 10px;"></div>
-            <strong>Half_Full:</strong> {{ status_count.Half_Full }} bins
-        </li>
-        <li style="display: flex; align-items: center;">
-            <div style="width: 20px; height: 20px; background-color: green; margin-right: 10px;"></div>
-            <strong>Empty:</strong> {{ status_count.Empty }} bins
-        </li>
-    </ul>
-</div>
-
-                
-            </div>
+    <div style="text-align: center; margin-top: 20px;">
+        <h1>Waste Bin Distribution</h1>
+        <div class="header-btn-container">
+            <a href="{% url 'logout' %}" class="btn logout-btn">Logout</a>
+            <a href="{% url 'change_password' %}" class="btn change-password-btn">Change Password</a>
         </div>
-
-        <!-- Analysis Section -->
-        <div class="row">
-            <div class="col-md-4">
-                <div class="chart-container">
-                    <h3>Bin Status Count</h3>
-                    <canvas id="statusChart" class="chart"></canvas>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="chart-container">
-                    <h3>Bin Count by City</h3>
-                    <canvas id="cityChart" class="chart"></canvas>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="chart-container">
-                    <h3>Bin Material Breakdown</h3>
-                    <canvas id="materialChart" class="chart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Collection Frequency and Daily Average Waste -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h3>Collection Frequency</h3>
-                    <canvas id="collectionFrequencyChart" class="chart"></canvas>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="chart-container">
-                    <h3>Daily Average Waste</h3>
-                    <canvas id="dailyAverageWasteChart" class="chart"></canvas>
-                </div>
-            </div>
-  
-        </div> 
-        <br> <br> <br> <br><br><br> <br> <br> <br> <br><br><br>
-        <div>
-
-        </div>
-
-        <script>
-            // Data from Django
-            const statusCount = JSON.parse('{{ status_count|escapejs }}');
-            const binCountByCity = JSON.parse('{{ bin_count_by_city|escapejs }}');
-            const materialAnalysis = JSON.parse('{{ material_analysis|escapejs }}');
-            const tempAnalysis = JSON.parse('{{ temp_analysis|escapejs }}');
-
-            // Prepare Data for Charts
-            const statusLabels = Object.keys(statusCount);
-            const statusValues = Object.values(statusCount);
-
-            const cityLabels = Object.keys(binCountByCity);
-            const cityValues = Object.values(binCountByCity);
-
-            const materialLabels = Object.keys(materialAnalysis);
-            const materialValues = Object.values(materialAnalysis);
-
-            const tempLabels = tempAnalysis.map(item => item['status']);
-            const tempMeans = tempAnalysis.map(item => item['mean']);
-            const tempStdDevs = tempAnalysis.map(item => item['std']);
-
-            // Status Count Bar Chart
-            new Chart(document.getElementById('statusChart'), {
-                type: 'bar',
-                data: {
-                    labels: statusLabels,
-                    datasets: [{
-                        label: 'Count of Bins',
-                        data: statusValues,
-                        backgroundColor: ['green', 'orange', 'red'], // Green for Empty, Orange for Half Full, Red for Full
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: true, text: 'Bin Status Count' }
-                    }
-                }
-            });
-
-            // Bin Count by City Pie Chart
-            new Chart(document.getElementById('cityChart'), {
-                type: 'pie',
-                data: {
-                    labels: cityLabels,
-                    datasets: [{
-                        data: cityValues,
-                        backgroundColor: ['blue', 'purple', 'yellow', 'green', 'orange'],
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: { display: true, text: 'Bin Count by City' }
-                    }
-                }
-            });
-
-            // Material Breakdown Bar Chart
-            new Chart(document.getElementById('materialChart'), {
-                type: 'bar',
-                data: {
-                    labels: materialLabels,
-                    datasets: [{
-                        label: 'Bin Count',
-                        data: materialValues,
-                        backgroundColor: ['brown', 'gray', 'blue', 'green'],
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: true, text: 'Bin Material Breakdown' }
-                    }
-                }
-            });
-
-            // Collection Frequency Bar Chart
-            new Chart(document.getElementById('collectionFrequencyChart'), {
-                type: 'bar',
-                data: {
-                    labels: materialLabels,
-                    datasets: [{
-                        label: 'Collection Frequency',
-                        data: materialValues,  // You can change this to the collection frequency data as needed
-                        backgroundColor: ['brown', 'gray', 'blue', 'green'],
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: true, text: 'Collection Frequency' }
-                    }
-                }
-            });
-
-            // Daily Average Waste Bar Chart
-            new Chart(document.getElementById('dailyAverageWasteChart'), {
-                type: 'bar',
-                data: {
-                    labels: materialLabels,
-                    datasets: [{
-                        label: 'Daily Average Waste',
-                        data: materialValues,  // You can change this to the daily average waste data as needed
-                        backgroundColor: ['brown', 'gray', 'blue', 'green'],
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: true, text: 'Daily Average Waste' }
-                    }
-                }
-            });
-        </script>
-
-        <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-        <script>
-            // Initialize the map
-            var map = L.map('map').setView([-1.286389, 36.817223], 6); // Centered in Kenya
-
-            // Add OpenStreetMap tiles
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 18,
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-
-            // Add bins as markers with color-coded styles
-            var bins = {{ bins|safe }};
-            bins.forEach(bin => {
-                var markerColor = bin.status === 'Full' ? "red" : (bin.status === 'Half Full' ? "orange" : "green");
-
-                var customIcon = L.divIcon({
-                    className: 'custom-icon',
-                    html: `<div style="background-color: ${markerColor}; color: white; border-radius: 10%; width: 40px; height: 20px; display: flex; justify-content: center; align-items: center; font-size: 10px;">${bin.bin_id}</div>`
-                });
-
-                L.marker([parseFloat(bin.latitude), parseFloat(bin.longitude)], { icon: customIcon })
-                    .addTo(map)
-                    .bindPopup(`
-                        <b>Bin ID:</b> ${bin.bin_id}<br>
-                        <b>Location:</b> ${bin.location}<br>
-                        <b>Status:</b> ${bin.status}<br>
-                        <b>Waste Level:</b> ${bin.waste_level}%<br>
-                        <b>Capacity:</b> ${bin.capacity}<br>
-                    `);
-            });
-        </script>
+        <div id="map"></div>
     </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map and set the view to Kenya's coordinates
+        var map = L.map('map').setView([-1.2921, 36.8219], 6); // Center on Nairobi, Kenya
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Function to assign colors based on waste level
+        function getColor(wasteLevel) {
+            if (wasteLevel <= 20) {
+                return 'green';  // Green for 0-20
+            } else if (wasteLevel <= 50) {
+                return 'yellow';  // Yellow for 21-50
+            } else if (wasteLevel <= 80) {
+                return 'orange';  // Orange for 51-80
+            } else {
+                return 'red';  // Red for 81-100
+            }
+        }
+
+        // Add markers for each bin with colored based on waste level
+        {% for bin in bins %}
+            var lat = {{ bin.latitude }};
+            var lon = {{ bin.longitude }};
+            var binId = '{{ bin.bin_id }}';
+            var wasteLevel = {{ bin.waste_level }};
+            var color = getColor(wasteLevel);
+
+            // Marker icon
+            var markerIcon = L.icon({
+                iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${color}.png`,
+                iconSize: [25, 41], // Size of the marker icon
+                iconAnchor: [12, 41], // Anchor point of the marker
+                popupAnchor: [0, -41] // Popup position
+            });
+
+            // Create marker with tooltip displaying Bin ID
+            var marker = L.marker([lat, lon], { icon: markerIcon })
+                .addTo(map)
+                .bindTooltip("<b>Bin ID:</b> " + binId, { permanent: true, direction: 'top', offset: [0, -20] }) // Permanent tooltip
+                .bindPopup("<b>Bin ID:</b> " + binId + "<br><b>Waste Level:</b> " + wasteLevel); // Popup showing waste level
+        {% endfor %}
+    </script>
+
+    <!-- Top Bins by Collection Frequency and Daily Average Waste charts in a row -->
+    <div class="chart-container">
+        <div id="chartContainer">
+            <h3>Top 10 Bins by Collection Frequency</h3>
+            <canvas id="collectionFrequencyChart"></canvas>
+        </div>
+
+        <div id="chartContainer">
+            <h3>Top 10 Bins by Daily Average Waste</h3>
+            <canvas id="dailyAverageWasteChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Bin Management Table -->
+    <div style="margin-top: 20px;">
+        <h2>Bin Management</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Bin ID</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                    <th>Waste Level</th>
+                    <th>Collection Frequency</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bin in bins %}
+                    <tr>
+                        <td>{{ bin.bin_id }}</td>
+                        <td>{{ bin.latitude }}</td>
+                        <td>{{ bin.longitude }}</td>
+                        <td>{{ bin.waste_level }}</td>
+                        <td>{{ bin.collection_frequency }}</td>
+                        <td style="text-align: center;">
+                            <a href="{% url 'empty_bin' bin.bin_id %}" class="btn btn-primary" style="margin-right: 5px;">Empty Bin</a>
+                            <a href="{% url 'add_dust_to_bin' bin.bin_id %}" class="btn btn-secondary" style="margin-right: 5px;">Add Dust</a>
+                            <a href="{% url 'edit_bin' bin.bin_id %}" class="btn btn-warning" style="margin-right: 5px;">Edit</a>
+                            <a href="{% url 'delete_bin' bin.bin_id %}" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Prepare data for the collection frequency chart
+        var binData = [
+            {% for bin in bins %}
+                {
+                    binId: '{{ bin.bin_id }}',
+                    collectionFrequency: {{ bin.collection_frequency }},
+                    dailyAverageWaste: {{ bin.daily_average_waste }}  // Assuming `daily_average_waste` exists in your data
+                },
+            {% endfor %}
+        ];
+
+        // Sort the bins by collection frequency and daily average waste to get the top 10
+        binData.sort(function(a, b) {
+            return b.collectionFrequency - a.collectionFrequency; // Sorting by collection frequency (descending)
+        });
+        var top10BinsByFrequency = binData.slice(0, 10);
+
+        binData.sort(function(a, b) {
+            return b.dailyAverageWaste - a.dailyAverageWaste; // Sorting by daily average waste (descending)
+        });
+        var top10BinsByWaste = binData.slice(0, 10);
+
+        // Extract bin IDs and collection frequencies for the top 10 bins
+        var binIdsByFrequency = top10BinsByFrequency.map(function(bin) { return bin.binId; });
+        var collectionFrequencies = top10BinsByFrequency.map(function(bin) { return bin.collectionFrequency; });
+        var binIdsByWaste = top10BinsByWaste.map(function(bin) { return bin.binId; });
+        var dailyAverageWaste = top10BinsByWaste.map(function(bin) { return bin.dailyAverageWaste; });
+
+        // Create the collection frequency bar chart for top 10 bins
+        var ctx1 = document.getElementById('collectionFrequencyChart').getContext('2d');
+        var collectionFrequencyChart = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: binIdsByFrequency,
+                datasets: [{
+                    label: 'Collection Frequency',
+                    data: collectionFrequencies,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Create the daily average waste line chart for top 10 bins
+        var ctx2 = document.getElementById('dailyAverageWasteChart').getContext('2d');
+        var dailyAverageWasteChart = new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: binIdsByWaste,
+                datasets: [{
+                    label: 'Daily Average Waste',
+                    data: dailyAverageWaste,
+                    backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
 </body>
-{% endblock %}
+</html>
