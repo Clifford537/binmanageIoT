@@ -12,29 +12,20 @@ class CustomUserCreationForm(UserCreationForm):
 class LoginForm(AuthenticationForm):
     username = forms.CharField(label="Username", max_length=100, widget=forms.TextInput(attrs={'placeholder': 'Enter Username'}))
     password = forms.CharField(label="Password", widget=forms.PasswordInput(attrs={'placeholder': 'Enter Password'}))
-
-# forms.py
 from django import forms
-from django import forms
-
-# Define the choices for fields
-STATUS_CHOICES = [
-    ('Empty', 'Empty'),
-    ('Full', 'Full'),
-    ('Half Full', 'Half Full'),
-]
-
-BIN_TYPE_CHOICES = [
-    ('Organic', 'Organic'),
-    ('Plastic', 'Plastic'),
-    ('Paper', 'Paper'),
-    ('Metal', 'Metal'),
-]
-
 
 class BinForm(forms.Form):
-    bin_id  = forms.IntegerField()
-    location = forms.CharField(max_length=255)
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+    ]
+    BIN_TYPE_CHOICES = [
+        ('organic', 'Organic'),
+        ('recyclable', 'Recyclable'),
+        ('general', 'General'),
+    ]
+
+    bin_id = forms.CharField(max_length=50)
     waste_level = forms.IntegerField()
     status = forms.ChoiceField(choices=STATUS_CHOICES)
     temperature = forms.FloatField()
@@ -42,8 +33,10 @@ class BinForm(forms.Form):
     capacity = forms.IntegerField()
     daily_average_waste = forms.FloatField()
     collection_frequency = forms.IntegerField()
-    latitude = forms.FloatField()
-    longitude = forms.FloatField()
+    latitude = forms.CharField(max_length=100, required=False)
+    longitude = forms.CharField(max_length=100, required=False)
+    location = forms.CharField(max_length=255, required=False)
+
 
 
 class CustomPasswordChangeForm(PasswordChangeForm):

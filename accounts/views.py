@@ -14,7 +14,8 @@ import json
 from django.contrib.auth import logout
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
-
+from datetime import datetime
+from .forms import BinForm  # Ensure you import your form
 
 
 # Views for user management
@@ -80,45 +81,61 @@ def municipal_dashboard(request):
     return render(request, 'accounts/admin_dashboard.html', {'bins': bins})
 
 # View for adding bin dataimport os
-
 def add_bin(request):
-    if request.method == "POST":
-        form = BinForm(request.POST)
-        if form.is_valid():
-            # Get the data from the form
-            bin_id = form.cleaned_data['bin_id']  # Get the bin_id directly
-            location = form.cleaned_data['location']
-            waste_level = form.cleaned_data['waste_level']
-            status = form.cleaned_data['status']
-            temperature = form.cleaned_data['temperature']
-            bin_type = form.cleaned_data['bin_type']
-            capacity = form.cleaned_data['capacity']
-            daily_average_waste = form.cleaned_data['daily_average_waste']
-            collection_frequency = form.cleaned_data['collection_frequency']
-            latitude = form.cleaned_data['latitude']
-            longitude = form.cleaned_data['longitude']
+    csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
 
-            # Get the absolute path to the CSV file
-            csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
+    if request.method == 'POST':
+        # Extract data from the form
+        bin_id = request.POST.get('bin_id')
+        waste_level = request.POST.get('waste_level')
+        status = request.POST.get('status')
+        temperature = request.POST.get('temperature')
+        bin_type = request.POST.get('bin_type')
+        capacity = request.POST.get('capacity')
+        daily_average_waste = request.POST.get('daily_average_waste')
+        collection_frequency = request.POST.get('collection_frequency')
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
+        location = request.POST.get('location')
+        contact = "cliffordmukosh@gmail.com"  # Hardcoded or dynamic
+        last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Add timestamp
 
-            try:
-                # Open the CSV file and append the data
-                with open(csv_file_path, mode='a', newline='') as file:
-                    writer = csv.writer(file)
-                    writer.writerow([bin_id, location, waste_level, status, '2025-01-01 00:00:00', temperature, bin_type, capacity, daily_average_waste, collection_frequency, latitude, longitude])
+        # Save data to CSV
+        try:
+            # Ensure the 'data' directory exists
+            os.makedirs(os.path.dirname(csv_file_path), exist_ok=True)
 
-                # Notify user that the data has been successfully added
-                messages.success(request, "Bin data added successfully!")
+            # Check if the file exists to write headers if needed
+            file_exists = os.path.isfile(csv_file_path)
 
-                return HttpResponse("Bin data added successfully!")
-            except Exception as e:
-                messages.error(request, f"Error saving bin data: {str(e)}")
-                return HttpResponse("There was an error saving the data. Please try again.")
-    else:
-        form = BinForm()
+            with open(csv_file_path, 'a', newline='') as file:
+                writer = csv.writer(file)
 
-    return render(request, 'accounts/create_bin.html', {'form': form})
+                # Write headers if the file is new
+                if not file_exists:
+                    writer.writerow([  # Define headers in the CSV
+                        "bin_id", "location", "waste_level", "status", "last_updated",
+                        "temperature", "bin_type", "capacity", "daily_average_waste",
+                        "collection_frequency", "latitude", "longitude", "contact"
+                    ])
 
+                # Write the new bin data
+                writer.writerow([  # Write data to CSV
+                    bin_id, location, waste_level, status, last_updated,
+                    temperature, bin_type, capacity, daily_average_waste,
+                    collection_frequency, latitude, longitude, contact
+                ])
+            messages.success(request, "Bin data successfully saved!")
+        except Exception as e:
+            messages.error(request, f"Error saving data: {str(e)}")
+
+        # Redirect to the municipal dashboard after saving
+        return redirect('municipal_dashboard')
+
+    # Instantiate the form if it's a GET request
+    form = BinForm()
+
+    return render(request, 'accounts/create_bin.html', {'form': form})  # Pass the form to the template
 
 @login_required
 def admin_dashboard(request):
