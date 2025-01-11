@@ -8,7 +8,7 @@ class User(AbstractUser):
     ROLE_CHOICES = [
         (ADMIN, 'Admin'),
         (MUNICIPAL, 'Municipal Authority'),
-        (MUNICIPAL, 'Municipal3 Authority'),
+
     ]
     
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default=MUNICIPAL)

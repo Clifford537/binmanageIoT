@@ -14,7 +14,9 @@ class CustomUserCreationForm(UserCreationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-input'}))
     password1 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-input'}))
     password2 = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-input'}))
-    role = forms.ChoiceField(widget=forms.Select(attrs={'class': 'form-select'}))  # Assuming you are using a select field for 'role'
+    role = forms.ChoiceField(
+        choices=User.ROLE_CHOICES,  # Use the model's ROLE_CHOICES
+        widget=forms.Select(attrs={'class': 'form-select'})) 
 
 
 class LoginForm(AuthenticationForm):
