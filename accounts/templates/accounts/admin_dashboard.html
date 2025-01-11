@@ -19,10 +19,11 @@
         }
 
         #map {
-            height: 600px;
+            height: 400px;
             margin-bottom: 30px;
             border-radius: 8px;
             border: 2px solid #ddd;
+            width: 800px;
         }
 
         .btn {
@@ -68,10 +69,17 @@
             text-align: right;
         }
 
-        #chartContainer {
-            width: 100%;
-            height: 400px;
+        /* Chart Container Styling for Flexbox */
+        .chart-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
             margin-top: 40px;
+        }
+
+        #chartContainer {
+            width: 48%;
+            height: 300px;
             background-color: #fff;
             padding: 20px;
             border-radius: 8px;
@@ -131,29 +139,54 @@
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Add markers for each bin based on latitude and longitude from the CSV
+        // Function to assign colors based on waste level
+        function getColor(wasteLevel) {
+            if (wasteLevel <= 20) {
+                return 'green';  // Green for 0-20
+            } else if (wasteLevel <= 50) {
+                return 'yellow';  // Yellow for 21-50
+            } else if (wasteLevel <= 80) {
+                return 'orange';  // Orange for 51-80
+            } else {
+                return 'red';  // Red for 81-100
+            }
+        }
+
+        // Add markers for each bin with colored based on waste level
         {% for bin in bins %}
             var lat = {{ bin.latitude }};
             var lon = {{ bin.longitude }};
             var binId = '{{ bin.bin_id }}';
-            var wasteLevel = '{{ bin.waste_level }}';
+            var wasteLevel = {{ bin.waste_level }};
+            var color = getColor(wasteLevel);
 
-            L.marker([lat, lon])
+            // Marker icon
+            var markerIcon = L.icon({
+                iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${color}.png`,
+                iconSize: [25, 41], // Size of the marker icon
+                iconAnchor: [12, 41], // Anchor point of the marker
+                popupAnchor: [0, -41] // Popup position
+            });
+
+            // Create marker with tooltip displaying Bin ID
+            var marker = L.marker([lat, lon], { icon: markerIcon })
                 .addTo(map)
-                .bindPopup("<b>Bin ID:</b> " + binId + "<br><b>Waste Level:</b> " + wasteLevel);
+                .bindTooltip("<b>Bin ID:</b> " + binId, { permanent: true, direction: 'top', offset: [0, -20] }) // Permanent tooltip
+                .bindPopup("<b>Bin ID:</b> " + binId + "<br><b>Waste Level:</b> " + wasteLevel); // Popup showing waste level
         {% endfor %}
     </script>
 
-    <!-- Top Bins by Collection Frequency Chart -->
-    <div id="chartContainer">
-        <h3>Top Bins by Collection Frequency</h3>
-        <canvas id="collectionFrequencyChart"></canvas>
-    </div>
+    <!-- Top Bins by Collection Frequency and Daily Average Waste charts in a row -->
+    <div class="chart-container">
+        <div id="chartContainer">
+            <h3>Top 10 Bins by Collection Frequency</h3>
+            <canvas id="collectionFrequencyChart"></canvas>
+        </div>
 
-    <!-- Daily Average Waste of Bins Chart -->
-    <div id="chartContainer">
-        <h3>Daily Average Waste of Bins</h3>
-        <canvas id="dailyAverageWasteChart"></canvas>
+        <div id="chartContainer">
+            <h3>Top 10 Bins by Daily Average Waste</h3>
+            <canvas id="dailyAverageWasteChart"></canvas>
+        </div>
     </div>
 
     <!-- Bin Management Table -->
@@ -202,17 +235,29 @@
             {% endfor %}
         ];
 
-        // Extract bin IDs and collection frequencies for chart
-        var binIds = binData.map(function(bin) { return bin.binId; });
-        var collectionFrequencies = binData.map(function(bin) { return bin.collectionFrequency; });
-        var dailyAverageWaste = binData.map(function(bin) { return bin.dailyAverageWaste; });
+        // Sort the bins by collection frequency and daily average waste to get the top 10
+        binData.sort(function(a, b) {
+            return b.collectionFrequency - a.collectionFrequency; // Sorting by collection frequency (descending)
+        });
+        var top10BinsByFrequency = binData.slice(0, 10);
 
-        // Create the collection frequency bar chart
+        binData.sort(function(a, b) {
+            return b.dailyAverageWaste - a.dailyAverageWaste; // Sorting by daily average waste (descending)
+        });
+        var top10BinsByWaste = binData.slice(0, 10);
+
+        // Extract bin IDs and collection frequencies for the top 10 bins
+        var binIdsByFrequency = top10BinsByFrequency.map(function(bin) { return bin.binId; });
+        var collectionFrequencies = top10BinsByFrequency.map(function(bin) { return bin.collectionFrequency; });
+        var binIdsByWaste = top10BinsByWaste.map(function(bin) { return bin.binId; });
+        var dailyAverageWaste = top10BinsByWaste.map(function(bin) { return bin.dailyAverageWaste; });
+
+        // Create the collection frequency bar chart for top 10 bins
         var ctx1 = document.getElementById('collectionFrequencyChart').getContext('2d');
         var collectionFrequencyChart = new Chart(ctx1, {
             type: 'bar',
             data: {
-                labels: binIds,
+                labels: binIdsByFrequency,
                 datasets: [{
                     label: 'Collection Frequency',
                     data: collectionFrequencies,
@@ -230,12 +275,12 @@
             }
         });
 
-        // Create the daily average waste line chart
+        // Create the daily average waste line chart for top 10 bins
         var ctx2 = document.getElementById('dailyAverageWasteChart').getContext('2d');
         var dailyAverageWasteChart = new Chart(ctx2, {
             type: 'line',
             data: {
-                labels: binIds,
+                labels: binIdsByWaste,
                 datasets: [{
                     label: 'Daily Average Waste',
                     data: dailyAverageWaste,
