@@ -1,6 +1,6 @@
 bin_id,location,waste_level,status,last_updated,temperature,bin_type,capacity,daily_average_waste,collection_frequency,latitude,longitude,contact
 BIN_1,"Nairobi, Westlands, Parklands, The Sarit Centre",10,Empty,2025-01-04 18:49:41.424032,18.27,Organic,78,19.23,32,-1.262186,36.805055,cliffordmukosh@gmail.com
 BIN_2,"Mombasa, Old Town, Moi Avenue, Mombasa Building",10,Full,2025-01-02 12:49:41.424074,39.15,Plastic,66,10.93,10,-4.061387,39.666245,cliffordmukosh@gmail.com
-BIN_3,"Kisumu, Milimani, Oginga Odinga Street, Kisumu Mall",10,Empty,2025-01-02 18:49:41.424092,35.59,Paper,126,6.83,8,-0.091702,34.767957,cliffordmukosh@gmail.com
+BIN_3,"Kisumu, Milimani, Oginga Odinga Street, Kisumu Mall",10,Empty,2025-01-02 18:49:41.424092,35.59,Paper,126,6.83,10,-0.091702,34.767957,cliffordmukosh@gmail.com
 BIN_4,"Nakuru, Kiamunyi, Kenyatta Avenue, Nakuru Building",10,Half Full,2024-12-31 19:49:41.424103,18.1,Paper,107,11.63,15,-0.285236,36.071958,cliffordmukosh@gmail.com
 BIN_6,"Nairobi, Pangani, Moi Avenue, Pangani Building",10,Full,2025-01-03 23:49:41.424124,35.24,Metal,81,16.14,15,-1.283253,36.828711,cliffordmukosh@gmail.com

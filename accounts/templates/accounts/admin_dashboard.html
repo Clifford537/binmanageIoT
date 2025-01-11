@@ -103,13 +103,20 @@
         <canvas id="collectionFrequencyChart"></canvas>
     </div>
 
+    <!-- Chart displaying the daily average waste of bins -->
+    <div id="chartContainer">
+        <h3>Daily Average Waste of Bins</h3>
+        <canvas id="dailyAverageWasteChart"></canvas>
+    </div>
+
     <script>
-        // Prepare data for the chart
+        // Prepare data for the collection frequency chart
         var binData = [
             {% for bin in bins %}
                 {
                     binId: '{{ bin.bin_id }}',
-                    collectionFrequency: {{ bin.collection_frequency }}
+                    collectionFrequency: {{ bin.collection_frequency }},
+                    dailyAverageWaste: {{ bin.daily_average_waste }}  // Assuming `daily_average_waste` exists in your data
                 },
             {% endfor %}
         ];
@@ -117,10 +124,11 @@
         // Extract bin IDs and collection frequencies for chart
         var binIds = binData.map(function(bin) { return bin.binId; });
         var collectionFrequencies = binData.map(function(bin) { return bin.collectionFrequency; });
+        var dailyAverageWaste = binData.map(function(bin) { return bin.dailyAverageWaste; });
 
-        // Create the bar chart
-        var ctx = document.getElementById('collectionFrequencyChart').getContext('2d');
-        var collectionFrequencyChart = new Chart(ctx, {
+        // Create the collection frequency bar chart
+        var ctx1 = document.getElementById('collectionFrequencyChart').getContext('2d');
+        var collectionFrequencyChart = new Chart(ctx1, {
             type: 'bar',
             data: {
                 labels: binIds,
@@ -129,6 +137,29 @@
                     data: collectionFrequencies,
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
                     borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Create the daily average waste line chart
+        var ctx2 = document.getElementById('dailyAverageWasteChart').getContext('2d');
+        var dailyAverageWasteChart = new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: binIds,
+                datasets: [{
+                    label: 'Daily Average Waste',
+                    data: dailyAverageWaste,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
                     borderWidth: 1
                 }]
             },
