@@ -90,6 +90,7 @@ def municipal_dashboard(request):
     # Pass data to the template
     return render(request, 'accounts/admin_dashboard.html', {'bins': bins})
 
+@login_required
 # View for adding bin dataimport os
 def add_bin(request):
     csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
