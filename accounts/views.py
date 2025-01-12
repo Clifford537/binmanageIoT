@@ -15,7 +15,8 @@ from django.contrib.auth import logout
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from datetime import datetime
-from .forms import BinForm  # Ensure you import your form
+from .forms import BinForm  
+from django.db import IntegrityError# Ensure you import your form
 
 
 # Views for user management
@@ -43,8 +44,17 @@ def register_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()  # Save the new user
-            return redirect('login')  # Redirect to the login page or dashboard after registration
+            try:
+                form.save()  # Save the new user
+                messages.success(request, "Your account has been created successfully!")
+                return redirect('login')  # Redirect to the login page or dashboard after registration
+            except IntegrityError:
+                # Catch the error if the account already exists (e.g., duplicate username)
+                form.add_error('username', 'A user with that username already exists.')
+                messages.error(request, "An error occurred. Please check the form below.")
+        else:
+            # If form is not valid, display a general error message
+            messages.error(request, "There were errors in your submission. Please check the form below.")
     else:
         form = CustomUserCreationForm()
 
