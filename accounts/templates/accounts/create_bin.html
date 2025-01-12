@@ -1,14 +1,181 @@
-{% extends 'base.html' %}
-
-{% block title %}Municipal Dashboard{% endblock %}
-
-{% block content %}
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Bin Data</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <style>
+        
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: #f8f9fa;
+    min-height: 100vh;
+  }
+
+  .dashboard-header {
+    background: #2c3e50;
+    padding: 1rem;
+  }
+
+  .header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo-section {
+    display: flex;
+    align-items: center;
+  }
+
+  .logo-link {
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .logo-link svg {
+    fill: #4CAF50;
+  }
+
+  .header-nav {
+    background: #34495e;
+    padding: 0.8rem 0;
+  }
+
+  .nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .nav-link {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background 0.3s;
+    font-weight: 500;
+  }
+
+  .nav-link:hover {
+    background: #4CAF50;
+  }
+
+  .nav-link.active {
+    background: #4CAF50;
+  }
+
+  .user-section {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .notification-bell {
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+  }
+
+  .notification-bell svg {
+    fill: #ffffff;
+  }
+
+  .notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .user-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    transition: background 0.3s;
+  }
+
+  .user-profile:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .user-avatar {
+    width: 35px;
+    height: 35px;
+    background: #4CAF50;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+  }
+
+  .user-name {
+    color: #ffffff;
+    font-weight: 500;
+  }
+
+  .user-info-dropdown {
+    display: none;
+    position: absolute;
+    top: 60px;
+    right: 10px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.user-info-dropdown.visible {
+    display: block;
+}
+
+.user-info-dropdown p {
+    margin: 0.5rem 0;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.user-info-dropdown a {
+    color: #3498DB;
+    text-decoration: none;
+    font-weight: bold;
+    display: block;
+    margin-top: 1rem;
+    text-align: center;
+}
+
         .bin-data-page main {
             font-family: Arial, sans-serif;
             display: flex;
@@ -105,6 +272,62 @@
         }
     </style>
 </head>
+</body>
+
+<header>
+    <div class="dashboard-header">
+      <div class="header-container">
+        <div class="logo-section">
+          <a href="{% url 'admin_dashboard' %}"  class="logo-link">
+            <svg width="24" height="24" viewBox="0 0 24 24">
+              <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
+            </svg>
+            Trash Nova
+          </a>
+        </div>
+  
+        <div class="user-section">
+          <button class="notification-bell">
+            <svg width="24" height="24" viewBox="0 0 24 24">
+              <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+            </svg>
+            <span class="notification-badge">0</span>
+          </button>
+  
+          {% if user.is_authenticated %}
+          <div class="user-profile">
+              <div class="user-avatar">{{ user.username|slice:":2"|upper }}</div>
+              <span class="user-name">{{ user.username }}</span>
+          </div>
+          {% else %}
+          <div class="user-profile">
+              <div class="user-avatar">GU</div>
+              <span class="user-name">Guest User</span>
+          </div>
+          {% endif %}
+          
+        </div>
+      </div>
+    </div>
+  
+    <nav class="header-nav">
+      <div class="nav-container">
+        <a href="{% url 'admin_dashboard' %}" class="nav-link active">Dashboard</a>
+        <!-- <a href="https://trashnova.com/collections" class="nav-link">Collections</a> -->
+        <!-- <a href="https://trashnova.com/reports" class="nav-link">Reports</a>-->
+        <a  href="{% url 'add_bin' %}" class="nav-link">Add Bin</a> 
+        <a href="{% url 'change_password' %}" class="nav-link">Settings</a>
+      </div>
+    </nav>
+  </header>
+  
+<!-- User Information Dropdown -->
+<div class="user-info-dropdown">
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <!-- <p><strong>Email:</strong> {{ user.email }}</p> -->
+    <p><strong>Role:</strong> {{ user.get_role_display }}</p>
+    <a href="{% url 'logout' %}">Logout</a>
+</div>
 
 <div class="bin-data-page">
     <h1>Add Bin Data</h1>
@@ -242,7 +465,21 @@
                 .bindPopup("Selected Location: " + lat.toFixed(5) + ", " + lon.toFixed(5))
                 .openPopup();
         });
+
+
+        document.querySelector('.notification-bell').addEventListener('click', () => {
+          alert('you have 0 new Notifications');
+        });
+      
+    document.querySelector('.user-profile').addEventListener('click', () => {
+    // Toggle visibility of the user information dropdown
+    const userInfoDropdown = document.querySelector('.user-info-dropdown');
+    userInfoDropdown.classList.toggle('visible');
+    });
+
     </script>
 </div>
 
-{% endblock %}
+</body>
+</html>
+

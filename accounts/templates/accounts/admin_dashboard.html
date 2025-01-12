@@ -253,6 +253,40 @@
     color: #ffffff;
     font-weight: 500;
   }
+
+  .user-info-dropdown {
+    display: none;
+    position: absolute;
+    top: 60px;
+    right: 10px;
+    background: #26373f;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    
+}
+
+.user-info-dropdown.visible {
+    display: block;
+}
+
+.user-info-dropdown p {
+    margin: 0.5rem 0;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.user-info-dropdown a {
+    color: #3498DB;
+    text-decoration: none;
+    font-weight: bold;
+    display: block;
+    margin-top: 1rem;
+    text-align: center;
+}
+
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -262,7 +296,7 @@
         <div class="dashboard-header">
           <div class="header-container">
             <div class="logo-section">
-              <a href="https://trashnova.com" class="logo-link">
+              <a href="{% url 'admin_dashboard' %}" class="logo-link">
                 <svg width="24" height="24" viewBox="0 0 24 24">
                   <path d="M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z"/>
                 </svg>
@@ -275,36 +309,48 @@
                 <svg width="24" height="24" viewBox="0 0 24 24">
                   <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
                 </svg>
-                <span class="notification-badge">3</span>
+                <span class="notification-badge">0</span>
               </button>
       
+              {% if user.is_authenticated %}
               <div class="user-profile">
-                <div class="user-avatar">JD</div>
-                <span class="user-name">John Doe</span>
+                  <div class="user-avatar">{{ user.username|slice:":2"|upper }}</div>
+                  <span class="user-name">{{ user.username }}</span>
               </div>
+              {% else %}
+              <div class="user-profile">
+                  <div class="user-avatar">GU</div>
+                  <span class="user-name">Guest User</span>
+              </div>
+              {% endif %}
+              
             </div>
           </div>
         </div>
       
         <nav class="header-nav">
           <div class="nav-container">
-            <a href="https://trashnova.com/dashboard" class="nav-link active">Dashboard</a>
-            <a href="https://trashnova.com/collections" class="nav-link">Collections</a>
-            <a href="https://trashnova.com/reports" class="nav-link">Reports</a>
-            <a href="https://trashnova.com/analytics" class="nav-link">Analytics</a>
-            <a href="https://trashnova.com/settings" class="nav-link">Settings</a>
+            <a href="{% url 'admin_dashboard' %}" class="nav-link active">Dashboard</a>
+            <!-- <a href="https://trashnova.com/collections" class="nav-link">Collections</a> -->
+            <!-- <a href="https://trashnova.com/reports" class="nav-link">Reports</a>-->
+            <a  href="{% url 'add_bin' %}" class="nav-link">Add Bin</a> 
+            <a href="{% url 'change_password' %}" class="nav-link">Settings</a>
           </div>
         </nav>
       </header>
       
-      <script>
-
-      </script>
+<!-- User Information Dropdown -->
+    <div class="user-info-dropdown">
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <!-- <p><strong>Email:</strong> {{ user.email }}</p> -->
+        <p><strong>Role:</strong> {{ user.get_role_display }}</p>
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
 
     <div style="text-align: center; margin-top: 20px;">
         <div class="header-btn-container">
             <a href="{% url 'logout' %}" class="btn logout-btn">Logout</a>
-            <a href="{% url 'change_password' %}" class="btn change-password-btn">Change Password</a>
+            <!-- <a href="{% url 'change_password' %}" class="btn change-password-btn">Change Password</a> -->
         </div>
         <div id="map"></div>
     </div>
@@ -401,12 +447,15 @@
 
     <script>
         document.querySelector('.notification-bell').addEventListener('click', () => {
-          alert('Notifications panel would open here');
+          alert('you have 0 new Notifications');
         });
       
-        document.querySelector('.user-profile').addEventListener('click', () => {
-          alert('User profile menu would open here');
-        });
+    document.querySelector('.user-profile').addEventListener('click', () => {
+    // Toggle visibility of the user information dropdown
+    const userInfoDropdown = document.querySelector('.user-info-dropdown');
+    userInfoDropdown.classList.toggle('visible');
+    });
+
 
         // Prepare data for the collection frequency chart
         var binData = [
