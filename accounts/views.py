@@ -19,7 +19,7 @@ from .forms import BinForm
 from django.db import IntegrityError
 from django.core.mail import send_mail
 from django.conf import settings
-
+from django.utils import timezone
 
 # Views for user management
 def home_page(request):
@@ -62,6 +62,7 @@ def register_view(request):
 
     return render(request, 'accounts/register.html', {'form': form})
 
+@login_required
 def change_password(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
@@ -151,8 +152,12 @@ def add_bin(request):
 
     return render(request, 'accounts/create_bin.html', {'form': form})  # Pass the form to the template
 
+
 @login_required
 def admin_dashboard(request):
+    # Get the unread notifications count
+    unread_notifications = EmailNotification.objects.filter(read=False).count()
+
     # Define the path to the CSV file
     csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
 
@@ -163,8 +168,15 @@ def admin_dashboard(request):
         for row in reader:
             bins.append(row)
 
+    # Fetch the latest email notifications (limit to 5 most recent)
+    notifications = EmailNotification.objects.all().order_by('-sent_at')[:5]
+
     # Pass data to the template
-    return render(request, 'accounts/admin_dashboard.html', {'bins': bins})
+    return render(request, 'accounts/admin_dashboard.html', {
+        'bins': bins,
+        'unread_notifications': unread_notifications,
+        'notifications': notifications
+    })
 
 
 @login_required
@@ -260,6 +272,8 @@ def empty_bin(request, bin_id):
 
     return redirect('admin_dashboard')
 
+from .models import EmailNotification
+
 @login_required
 def add_dust_to_bin(request, bin_id):
     csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
@@ -303,15 +317,28 @@ def add_dust_to_bin(request, bin_id):
                     """
 
                     # Send the email with HTML content
-                    send_mail(
-                        subject,
-                        "",  # Empty plain-text message (required but not used)
-                        settings.DEFAULT_FROM_EMAIL,
-                        [contact_email],
-                        html_message=message  # Include HTML message
-                    )
+                    try:
+                        send_mail(
+                            subject,
+                            "",  # Empty plain-text message (required but not used)
+                            settings.DEFAULT_FROM_EMAIL,
+                            [contact_email],
+                            html_message=message  # Include HTML message
+                        )
+                        email_sent = True  # Mark email as sent
 
-                    email_sent = True  # Mark email as sent
+                        # Save email details to the database
+                        EmailNotification.objects.create(
+                            sender=settings.DEFAULT_FROM_EMAIL,
+                            recipient=contact_email,
+                            subject=subject,
+                            message=message,
+                            sent_at=timezone.now(),
+                            read=False  # Mark as unread
+                        )
+                    except Exception as e:
+                        # Handle email sending failure (optional)
+                        print(f"Error sending email: {e}")
 
                 # Set the new waste level to the bin
                 row['waste_level'] = str(new_level)

@@ -419,6 +419,76 @@
     color: #F1C40F;
     }
 
+    /* Notification Dropdown */
+.notification-dropdown {
+    display: none; /* Initially hidden */
+    position: absolute;
+    top: 40px; /* Position the dropdown below the bell */
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    z-index: 9999;
+    padding: 10px;
+    max-height: 400px;
+    overflow-y: auto; /* Add scroll if notifications exceed the limit */
+    font-family: Arial, sans-serif;
+}
+
+/* Dropdown Header */
+.notification-dropdown h3 {
+    margin: 0;
+    padding: 10px 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+}
+
+/* Notification Item */
+.notification-item {
+    padding: 10px;
+    border-bottom: 1px solid #f4f4f4;
+    margin-bottom: 10px;
+    background-color: #fafafa;
+    transition: background-color 0.3s ease;
+}
+
+/* Last notification without border */
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+/* Hover effect on notification items */
+.notification-item:hover {
+    background-color: #f0f0f0;
+    cursor: pointer;
+}
+
+/* Notification Item Text */
+.notification-item p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+/* Truncate long messages */
+.notification-item p strong {
+    color: #333;
+}
+
+/* Empty state */
+.notification-dropdown li {
+    font-size: 14px;
+    color: #aaa;
+    padding: 10px;
+    text-align: center;
+}
+
+
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -437,12 +507,15 @@
             </div>
       
             <div class="user-section">
-              <button class="notification-bell">
-                <svg width="24" height="24" viewBox="0 0 24 24">
-                  <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
-                </svg>
-                <span class="notification-badge">0</span>
-              </button>
+
+                <!-- Notification Bell -->
+                <button class="notification-bell" id="notification-bell">
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                        <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+                    </svg>
+                    <span class="notification-badge" id="notification-count">{{ unread_notifications }}</span>
+                </button>
+
       
               {% if user.is_authenticated %}
               <div class="user-profile">
@@ -472,6 +545,23 @@
         </nav>
       </header>
       
+
+    <!-- Notification Dropdown (Hidden by default) -->
+    <div class="notification-dropdown" id="notification-dropdown" style="display:none;">
+        {% for notification in notifications %}
+            <div class="notification-item">
+                <p><strong>Subject:</strong> {{ notification.subject }}</p>
+                <p><strong>Sender:</strong> {{ notification.sender }}</p>
+                <p><strong>Recipient:</strong> {{ notification.recipient }}</p>
+                <p><strong>Message:</strong> {{ notification.message }}</p>
+                <p><strong>Sent at:</strong> {{ notification.sent_at|date:"Y-m-d H:i" }}</p>
+                <hr>
+            </div>
+        {% empty %}
+            <p>No notifications available.</p>
+        {% endfor %}
+    </div>
+
 <!-- User Information Dropdown -->
     <div class="user-info-dropdown">
         <p><strong>Username:</strong> {{ user.username }}</p>
@@ -479,6 +569,25 @@
         <p><strong>Role:</strong> {{ user.get_role_display }}</p>
         <a href="{% url 'logout' %}">Logout</a>
     </div>
+
+
+        <!-- Notification Dropdown -->
+        <div class="notification-dropdown" id="notification-dropdown">
+            <h3>Notifications</h3>
+            <ul id="notification-list">
+                {% for notification in notifications %}
+                <li class="notification-item">
+                    <p><strong>Subject:</strong> {{ notification.subject }}</p>
+                    <p><strong>Sender:</strong> {{ notification.sender }}</p>
+                    <p><strong>Recipient:</strong> {{ notification.recipient }}</p>
+                    <p><strong>Message:</strong> {{ notification.message|truncatewords:15 }}</p> <!-- Limiting message to 15 words -->
+                    <p><strong>Sent at:</strong> {{ notification.sent_at }}</p>
+                </li>
+                {% empty %}
+                <li>No new notifications</li>
+                {% endfor %}
+            </ul>
+        </div>
 
     <div style="text-align: center; margin-top: 20px;">
         <div class="header-btn-container">
@@ -634,10 +743,12 @@
   
   
     <script>
-        document.querySelector('.notification-bell').addEventListener('click', () => {
-          alert('you have 0 new Notifications');
-        });
-      
+// Toggle notification dropdown visibility on bell click
+document.getElementById('notification-bell').addEventListener('click', function() {
+    const dropdown = document.getElementById('notification-dropdown');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+});
+
     document.querySelector('.user-profile').addEventListener('click', () => {
     // Toggle visibility of the user information dropdown
     const userInfoDropdown = document.querySelector('.user-info-dropdown');

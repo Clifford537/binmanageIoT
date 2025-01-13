@@ -145,3 +145,4 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'dantemukosh@gmail.com'  # Your email address
 EMAIL_HOST_PASSWORD = 'zqsq akdk hulw blmr'  # Your email password or app-specific password
 DEFAULT_FROM_EMAIL = 'dantemukosh@gmail.com'
+
