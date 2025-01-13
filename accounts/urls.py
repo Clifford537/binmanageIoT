@@ -18,4 +18,7 @@ urlpatterns = [
     path('add_dust_to_bin/<str:bin_id>/', views.add_dust_to_bin, name='add_dust_to_bin'),
     path('logout/', views.logout_view, name='logout'),
     path('change-password/', views.change_password, name='change_password'),
+
+    path('mark_as_read/<int:notification_id>/', views.mark_as_read, name='mark_as_read'),
+    path('delete_notification/<int:notification_id>/', views.delete_notification, name='delete_notification'),
 ]

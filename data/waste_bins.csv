@@ -1,10 +1,10 @@
 bin_id,location,waste_level,status,last_updated,temperature,bin_type,capacity,daily_average_waste,collection_frequency,latitude,longitude,contact
-BIN_1,"Nairobi, Westlands, Parklands, The Sarit Centre",40,Empty,2025-01-04 18:49:41.424032,18.27,Metal,78,19.23,39,-1.262186,36.805055,cliffordmukosh@gmail.com
-BIN_3,"Kisumu, Milimani, Oginga Odinga Street, Kisumu Mall",100,Empty,2025-01-02 18:49:41.424092,35.59,Paper,126,6.83,12,-0.091702,34.767957,cliffordmukosh@gmail.com
+BIN_1,"Nairobi, Westlands, Parklands, The Sarit Centre",50,Empty,2025-01-04 18:49:41.424032,18.27,Metal,78,19.23,39,-1.262186,36.805055,cliffordmukosh@gmail.com
+BIN_3,"Kisumu, Milimani, Oginga Odinga Street, Kisumu Mall",140,Empty,2025-01-02 18:49:41.424092,35.59,Paper,126,6.83,12,-0.091702,34.767957,mkoshclifford041@gmail.com
 BIN_4,"Nakuru, Kiamunyi, Kenyatta Avenue, Nakuru Building",10,Half Full,2024-12-31 19:49:41.424103,18.1,Paper,107,11.63,15,-0.285236,36.071958,cliffordmukosh@gmail.com
-BIN_6,"Nairobi, Pangani, Moi Avenue, Pangani Building",0,Full,2025-01-03 23:49:41.424124,35.24,Metal,81,16.14,16,-1.283253,36.828711,cliffordmukosh@gmail.com
+BIN_6,"Nairobi, Pangani, Moi Avenue, Pangani Building",0,Full,2025-01-03 23:49:41.424124,35.24,Metal,81,16.14,17,-1.283253,36.828711,cliffordmukosh@gmail.com
 Ut commodi possimus,"Baawa ward, Samburu Central, Samburu, Rift Valley, Kenya",20,active,2025-01-11 05:05:22,100,general,9,41,58,1.292991252341777,36.82205200195313,cliffordmukosh@gmail.com
-Ratione aut odio est,"Baawa ward, Samburu Central, Samburu, Rift Valley, Kenya",0,active,2025-01-11 05:08:56,22,general,56,87,71,1.2858047523392004,36.828489303588874,cliffordmukosh@gmail.com
-Ratione aut odio est,"Baawa ward, Samburu Central, Samburu, Rift Valley, Kenya",0,active,2025-01-11 05:09:10,22,general,56,87,71,1.2858047523392004,36.828489303588874,cliffordmukosh@gmail.com
+Ratione aut odio est,"Baawa ward, Samburu Central, Samburu, Rift Valley, Kenya",0,active,2025-01-11 05:08:56,22,general,56,87,72,1.2858047523392004,36.828489303588874,cliffordmukosh@gmail.com
+Ratione aut odio est,"Baawa ward, Samburu Central, Samburu, Rift Valley, Kenya",0,active,2025-01-11 05:09:10,22,general,56,87,72,1.2858047523392004,36.828489303588874,cliffordmukosh@gmail.com
 Eiusmod facilis cons,"Baawa ward, Samburu Central, Samburu, Rift Valley, Kenya",0,active,2025-01-11 06:27:59,36,general,99,75,89,1.2909532917162374,36.82162284851075,cliffordmukosh@gmail.com
 BIN456KSM,"Kirinyaga Central, Kirinyaga County, Central Kenya, 10300, Kenya",0,active,2025-01-12 20:30:38,24,recyclable,1000,0,0,-0.3824587075661566,37.28759765625001,cliffordmukosh@gmail.com

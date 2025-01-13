@@ -20,6 +20,8 @@ from django.db import IntegrityError
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
+from .models import EmailNotification
+from bs4 import BeautifulSoup
 
 # Views for user management
 def home_page(request):
@@ -244,21 +246,26 @@ def logout_view(request):
     logout(request)  # Logs the user out
     return redirect('login')
 
-
 @login_required
 def empty_bin(request, bin_id):
     csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
 
     # Read and update the CSV data
     bins = []
+    bin_emptied = False  # Flag to check if the bin was successfully emptied
+    bin_already_empty = False  # Flag to check if the bin is already empty
     with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             if row['bin_id'] == bin_id:
-                row['waste_level'] = '0'  # Set waste level to 0 when bin is emptied
-                # Increment the collection frequency by 1 (ensure it's an integer)
-                current_frequency = int(row['collection_frequency'])
-                row['collection_frequency'] = str(current_frequency + 1)
+                if row['waste_level'] == '0':  # Check if the bin is already empty
+                    bin_already_empty = True  # Set the flag to True if the bin is already empty
+                else:
+                    row['waste_level'] = '0'  # Set waste level to 0 when bin is emptied
+                    # Increment the collection frequency by 1 (ensure it's an integer)
+                    current_frequency = int(row['collection_frequency'])
+                    row['collection_frequency'] = str(current_frequency + 1)
+                    bin_emptied = True  # Set the flag to True when the bin is emptied
             bins.append(row)
 
     # Write the updated data back to the CSV
@@ -270,9 +277,14 @@ def empty_bin(request, bin_id):
         writer.writeheader()
         writer.writerows(bins)
 
-    return redirect('admin_dashboard')
+    # Add success or informational messages
+    if bin_emptied:
+        messages.success(request, f"Bin {bin_id} emptied successfully!")
+    elif bin_already_empty:
+        messages.info(request, f"Bin {bin_id} is already empty!")
 
-from .models import EmailNotification
+    return redirect('admin_dashboard')
+  # Import BeautifulSoup to parse and extract text from HTML
 
 @login_required
 def add_dust_to_bin(request, bin_id):
@@ -297,7 +309,7 @@ def add_dust_to_bin(request, bin_id):
 
                     # Email content with HTML styling, using "Trash Nova" as the app name
                     subject = f"Trash Nova: Waste Bin {bin_id} Alert"
-                    message = f"""
+                    message_html = f"""
                     <html>
                         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
                             <h2 style="color: #2e8b57;">Trash Nova</h2>
@@ -315,24 +327,27 @@ def add_dust_to_bin(request, bin_id):
                         </body>
                     </html>
                     """
+                    # Extract plain text from the HTML message using BeautifulSoup
+                    soup = BeautifulSoup(message_html, 'html.parser')
+                    message_text = soup.get_text()
 
                     # Send the email with HTML content
                     try:
                         send_mail(
                             subject,
-                            "",  # Empty plain-text message (required but not used)
+                            message_text,  # Send the plain text version of the message
                             settings.DEFAULT_FROM_EMAIL,
                             [contact_email],
-                            html_message=message  # Include HTML message
+                            html_message=message_html  # Include HTML message
                         )
                         email_sent = True  # Mark email as sent
 
-                        # Save email details to the database
+                        # Save email details to the database (save the plain text message)
                         EmailNotification.objects.create(
                             sender=settings.DEFAULT_FROM_EMAIL,
                             recipient=contact_email,
                             subject=subject,
-                            message=message,
+                            message=message_text,  # Save the plain text version
                             sent_at=timezone.now(),
                             read=False  # Mark as unread
                         )
@@ -356,4 +371,25 @@ def add_dust_to_bin(request, bin_id):
         writer.writeheader()
         writer.writerows(bins)
 
+    return redirect('admin_dashboard')
+
+@login_required
+def mark_as_read(request, notification_id):
+    try:
+        notification = EmailNotification.objects.get(id=notification_id)
+        notification.read = True
+        notification.save()
+    except EmailNotification.DoesNotExist:
+        pass  # Handle the case where the notification doesn't exist
+    return redirect('admin_dashboard')
+
+
+
+@login_required
+def delete_notification(request, notification_id):
+    try:
+        notification = EmailNotification.objects.get(id=notification_id)
+        notification.delete()
+    except EmailNotification.DoesNotExist:
+        pass  # Handle the case where the notification doesn't exist
     return redirect('admin_dashboard')

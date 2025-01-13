@@ -488,6 +488,53 @@
     text-align: center;
 }
 
+/* Button styles */
+button.mark-read-btn, button.delete-btn {
+    background-color: #4CAF50; /* Green for Mark as Read */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    margin-right: 5px;
+    border-radius: 7px;
+}
+
+button.mark-read-btn:hover {
+    background-color: #45a049;
+}
+
+button.delete-btn {
+    background-color: #f44336; /* Red for Delete */
+}
+
+button.delete-btn:hover {
+    background-color: #e53935;
+}
+
+/* Prevent form from adding margins around buttons */
+form {
+    display: inline;
+    margin: 0;
+}
+
+/* Style for alert messages */
+.alert-container {
+    margin-top: 20px;
+    padding: 10px;
+}
+
+.alert {
+    padding: 15px;
+    background-color: #28a745; /* Green for success */
+    color: white;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.alert-success {
+    background-color: #28a745; /* Green for success messages */
+}
+
 
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -545,22 +592,44 @@
         </nav>
       </header>
       
-
+      {% if messages %}
+      <div class="alert-container">
+          {% for message in messages %}
+              <div class="alert alert-success">
+                  {{ message }}
+              </div>
+          {% endfor %}
+      </div>
+  {% endif %}
+  
     <!-- Notification Dropdown (Hidden by default) -->
-    <div class="notification-dropdown" id="notification-dropdown" style="display:none;">
-        {% for notification in notifications %}
-            <div class="notification-item">
-                <p><strong>Subject:</strong> {{ notification.subject }}</p>
-                <p><strong>Sender:</strong> {{ notification.sender }}</p>
-                <p><strong>Recipient:</strong> {{ notification.recipient }}</p>
-                <p><strong>Message:</strong> {{ notification.message }}</p>
-                <p><strong>Sent at:</strong> {{ notification.sent_at|date:"Y-m-d H:i" }}</p>
-                <hr>
-            </div>
-        {% empty %}
-            <p>No notifications available.</p>
-        {% endfor %}
-    </div>
+ <!-- Notification Dropdown (Hidden by default) -->
+<div class="notification-dropdown" id="notification-dropdown" style="display:none;">
+    {% for notification in notifications %}
+        <div class="notification-item">
+            <p><strong>Subject:</strong> {{ notification.subject }}</p>
+            <p><strong>Sender:</strong> {{ notification.sender }}</p>
+            <p><strong>Recipient:</strong> {{ notification.recipient }}</p>
+            <p><strong>Message:</strong> {{ notification.message }}</p>
+            <p><strong>Sent at:</strong> {{ notification.sent_at|date:"Y-m-d H:i" }}</p>
+
+            <!-- Buttons for actions -->
+            <form action="{% url 'mark_as_read' notification.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="mark-read-btn">Mark as Read</button>
+            </form>
+            <form action="{% url 'delete_notification' notification.id %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="delete-btn">Delete</button>
+            </form>
+
+            <hr>
+        </div>
+    {% empty %}
+        <p>No notifications available.</p>
+    {% endfor %}
+</div>
+
 
 <!-- User Information Dropdown -->
     <div class="user-info-dropdown">
