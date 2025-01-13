@@ -16,7 +16,9 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from datetime import datetime
 from .forms import BinForm  
-from django.db import IntegrityError# Ensure you import your form
+from django.db import IntegrityError
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 # Views for user management
@@ -264,24 +266,67 @@ def add_dust_to_bin(request, bin_id):
 
     # Read and update the CSV data
     bins = []
+    email_sent = False  # Track if an email is sent
     with open(csv_file_path, newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             if row['bin_id'] == bin_id:
                 current_level = int(row['waste_level'])
                 max_capacity = int(row['capacity'])
-                new_level = min(current_level + 10, max_capacity)  # Increase waste level by 10, not exceeding capacity
+                new_level = current_level + 10  # Increase waste level by 10
+
+                # Check if the new waste level exceeds 80
+                if new_level >= 80 and not email_sent:  # Send email notification
+                    contact_email = row['contact']
+                    bin_location = row['location']
+                    bin_type = row['bin_type']
+
+                    # Email content with HTML styling, using "Trash Nova" as the app name
+                    subject = f"Trash Nova: Waste Bin {bin_id} Alert"
+                    message = f"""
+                    <html>
+                        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                            <h2 style="color: #2e8b57;">Trash Nova</h2>
+                            <p>Dear User,</p>
+                            <p style="color: #00008b;">
+                                The waste bin with ID <strong>{bin_id}</strong> located at 
+                                <strong>{bin_location}</strong> (Type: <strong>{bin_type}</strong>) 
+                                has reached a waste level of <strong>{new_level}</strong>.
+                            </p>
+                            <p style="color: #2e8b57;">
+                                Please arrange for collection to avoid overflow and ensure a clean environment.
+                            </p>
+                            <p>Thank you for using <strong>Trash Nova</strong>.</p>
+                            <p style="color: #00008b;"><strong>The Trash Nova Team</strong></p>
+                        </body>
+                    </html>
+                    """
+
+                    # Send the email with HTML content
+                    send_mail(
+                        subject,
+                        "",  # Empty plain-text message (required but not used)
+                        settings.DEFAULT_FROM_EMAIL,
+                        [contact_email],
+                        html_message=message  # Include HTML message
+                    )
+
+                    email_sent = True  # Mark email as sent
+
+                # Set the new waste level to the bin
                 row['waste_level'] = str(new_level)
+
             bins.append(row)
 
     # Write the updated data back to the CSV
-    fieldnames = ['bin_id', 'location', 'waste_level', 'status', 'last_updated', 'temperature', 
-                  'bin_type', 'capacity', 'daily_average_waste', 'collection_frequency', 'latitude', 
-                  'longitude', 'contact']
+    fieldnames = [
+        'bin_id', 'location', 'waste_level', 'status', 'last_updated', 'temperature', 
+        'bin_type', 'capacity', 'daily_average_waste', 'collection_frequency', 'latitude', 
+        'longitude', 'contact'
+    ]
     with open(csv_file_path, 'w', newline='', encoding='utf-8') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(bins)
 
     return redirect('admin_dashboard')
-
