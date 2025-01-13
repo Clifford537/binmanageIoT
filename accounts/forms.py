@@ -36,13 +36,13 @@ class BinForm(forms.Form):
     ]
 
     bin_id = forms.CharField(max_length=50)
-    waste_level = forms.IntegerField()
+    # waste_level = forms.IntegerField()
     status = forms.ChoiceField(choices=STATUS_CHOICES)
     temperature = forms.FloatField()
     bin_type = forms.ChoiceField(choices=BIN_TYPE_CHOICES)
     capacity = forms.IntegerField()
-    daily_average_waste = forms.FloatField()
-    collection_frequency = forms.IntegerField()
+    # daily_average_waste = forms.FloatField()
+    # collection_frequency = forms.IntegerField()
     latitude = forms.CharField(max_length=100, required=False)
     longitude = forms.CharField(max_length=100, required=False)
     location = forms.CharField(max_length=255, required=False)

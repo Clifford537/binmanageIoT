@@ -10,17 +10,70 @@
             h1, h2, h3 {
                 color: #333;
             }
+      /* divmap */
+            
+    #map {
+        height: 450px;
+        margin-bottom: 30px;
+        border-radius: 8px;
+        border: 2px solid #ddd;
+        width: 950px;
+       
+    }
 
-            #map {
-                height: 400px;
-                margin-bottom: 30px;
-                border-radius: 8px;
-                border: 2px solid #ddd;
-                width: 800px;
-                margin-left: 30px;
-                margin-top: 10px;
-                
-            }
+    #legend {
+        padding: 10px 20px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        background: #f9f9f9;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        text-align: left;
+    }
+  
+        #legend h4 {
+            margin: 0 0 10px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        #legend ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #legend li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .legend-color {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 4px;
+        }
+
+        .legend-color.green {
+            background-color: green;
+        }
+
+        .legend-color.yellow {
+            background-color: yellow;
+        }
+
+        .legend-color.orange {
+            background-color: orange;
+        }
+
+        .legend-color.red {
+            background-color: red;
+        }
+
+  /* div map */
 
             .btn {
                 padding: 10px 15px;
@@ -431,41 +484,55 @@
         <div class="header-btn-container">
             <a href="{% url 'logout' %}" class="btn logout-btn">Logout</a>
             <!-- <a href="{% url 'change_password' %}" class="btn change-password-btn">Change Password</a> -->
-        </div>
-        <div id="map"></div>
+            <div style="text-align: center; margin-top: 20px; display: flex; justify-content: center; align-items: flex-start; gap: 20px;">
+                <div id="map"></div>
+                <div id="legend">
+                    <h4>Waste Level Legend</h4>
+                    <ul>
+                        <li><span class="legend-color green"></span> 0-20% (Low)</li>
+                        <li><span class="legend-color yellow"></span> 21-50% (Moderate)</li>
+                        <li><span class="legend-color orange"></span> 51-80% (High)</li>
+                        <li><span class="legend-color red"></span> 81-100% (Critical)</li>
+                    </ul>
+                </div>
+            </div>            
     </div>
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         // Initialize the map and set the view to Kenya's coordinates
         var map = L.map('map').setView([-1.2921, 36.8219], 6); // Center on Nairobi, Kenya
-
+    
         // Add OpenStreetMap tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
-
+    
         // Function to assign colors based on waste level
         function getColor(wasteLevel) {
             if (wasteLevel <= 20) {
-                return 'green';  // Green for 0-20
+                return 'green'; // Green for 0-20
             } else if (wasteLevel <= 50) {
-                return 'yellow';  // Yellow for 21-50
+                return 'yellow'; // Yellow for 21-50
             } else if (wasteLevel <= 80) {
-                return 'orange';  // Orange for 51-80
+                return 'orange'; // Orange for 51-80
             } else {
-                return 'red';  // Red for 81-100
+                return 'red'; // Red for 81-100
             }
         }
-
-        // Add markers for each bin with colored based on waste level
+    
+        // Add markers for each bin with color based on waste level
         {% for bin in bins %}
-            var lat = {{ bin.latitude }};
-            var lon = {{ bin.longitude }};
+            var lat = parseFloat('{{ bin.latitude }}');
+            var lon = parseFloat('{{ bin.longitude }}');
             var binId = '{{ bin.bin_id }}';
-            var wasteLevel = {{ bin.waste_level }};
+            var wasteLevel = parseFloat('{{ bin.waste_level }}');
+            var status = '{{ bin.status }}';
+            var temperature = parseFloat('{{ bin.temperature }}');
+            var binType = '{{ bin.bin_type }}';
+            var capacity = parseInt('{{ bin.capacity }}');
             var color = getColor(wasteLevel);
-
+    
             // Marker icon
             var markerIcon = L.icon({
                 iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${color}.png`,
@@ -473,15 +540,22 @@
                 iconAnchor: [12, 41], // Anchor point of the marker
                 popupAnchor: [0, -41] // Popup position
             });
-
-            // Create marker with tooltip displaying Bin ID
+    
+            // Create marker with tooltip and popup displaying bin details
             var marker = L.marker([lat, lon], { icon: markerIcon })
                 .addTo(map)
                 .bindTooltip("<b>Bin ID:</b> " + binId, { permanent: true, direction: 'top', offset: [0, -20] }) // Permanent tooltip
-                .bindPopup("<b>Bin ID:</b> " + binId + "<br><b>Waste Level:</b> " + wasteLevel); // Popup showing waste level
+                .bindPopup(
+                    "<b>Bin ID:</b> " + binId + "<br>" +
+                    "<b>Waste Level:</b> " + wasteLevel + "%<br>" +
+                    "<b>Status:</b> " + status + "<br>" +
+                    "<b>Temperature:</b> " + temperature + " °C<br>" +
+                    "<b>Bin Type:</b> " + binType + "<br>" +
+                    "<b>Capacity:</b> " + capacity + " liters"
+                ); // Popup showing additional bin details
         {% endfor %}
     </script>
-
+    
     <!-- Top Bins by Collection Frequency and Daily Average Waste charts in a row -->
     <div class="chart-container">
         <div id="chartContainer">

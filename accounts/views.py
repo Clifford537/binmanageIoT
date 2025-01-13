@@ -91,23 +91,24 @@ def municipal_dashboard(request):
     return render(request, 'accounts/admin_dashboard.html', {'bins': bins})
 
 @login_required
-# View for adding bin dataimport os
 def add_bin(request):
     csv_file_path = os.path.join(settings.BASE_DIR, 'data', 'waste_bins.csv')
 
     if request.method == 'POST':
         # Extract data from the form
         bin_id = request.POST.get('bin_id')
-        waste_level = request.POST.get('waste_level')
+        waste_level = 0
         status = request.POST.get('status')
         temperature = request.POST.get('temperature')
         bin_type = request.POST.get('bin_type')
         capacity = request.POST.get('capacity')
-        daily_average_waste = request.POST.get('daily_average_waste')
-        collection_frequency = request.POST.get('collection_frequency')
-        latitude = request.POST.get('latitude')
-        longitude = request.POST.get('longitude')
-        location = request.POST.get('location')
+        latitude = request.POST.get('latitude', '')
+        longitude = request.POST.get('longitude', '')
+        location = request.POST.get('location', '')
+
+        # Default values for fields not in the form
+        daily_average_waste = 0  # Set to 0
+        collection_frequency = 0  # Set to 0
         contact = "cliffordmukosh@gmail.com"  # Hardcoded or dynamic
         last_updated = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Add timestamp
 
